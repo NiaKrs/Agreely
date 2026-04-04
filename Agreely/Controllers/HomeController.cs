@@ -1,32 +1,30 @@
-using System.Diagnostics;
-using Agreely.Models;
+using Agreely.Data;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Agreely.Controllers
 {
     public class HomeController : Controller
     {
-        private readonly ILogger<HomeController> _logger;
+        private readonly DatabaseHelper _db;
 
-        public HomeController(ILogger<HomeController> logger)
+        public HomeController(DatabaseHelper db)
         {
-            _logger = logger;
+            _db = db;
         }
 
-        public IActionResult Index()
+        public IActionResult TestConnection()
         {
-            return View();
-        }
+            try
+            {
+                using var connection = _db.GetConnection();
+                connection.Open();
 
-        public IActionResult Privacy()
-        {
-            return View();
-        }
-
-        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public IActionResult Error()
-        {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+                return Content("Connection successful!");
+            }
+            catch (Exception ex)
+            {
+                return Content("Error: " + ex.Message);
+            }
         }
     }
 }
