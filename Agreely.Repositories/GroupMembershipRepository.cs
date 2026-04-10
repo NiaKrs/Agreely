@@ -1,0 +1,35 @@
+﻿using Agreely.Models;
+using Microsoft.Data.SqlClient;
+
+namespace Agreely.Repositories
+{
+    public class GroupMembershipRepository : IGroupMembershipRepository
+    {
+        private readonly string _connectionString;
+
+        public GroupMembershipRepository(string connectionString)
+        {
+            _connectionString = connectionString;
+        }
+
+        public void AddMember(GroupMembership membership)
+        {
+            using (SqlConnection connection = new SqlConnection(_connectionString))
+            {
+                string query = @"INSERT INTO [GroupMembership] (GroupId, UserId)
+                                 VALUES (@GroupId, @UserId);";
+
+                SqlCommand command = new SqlCommand(query, connection);
+                command.Parameters.AddWithValue("@GroupId", membership.GroupId);
+                command.Parameters.AddWithValue("@UserId", membership.UserId);
+                
+
+                connection.Open();
+                command.ExecuteNonQuery();
+                return;
+            }
+        }
+
+       
+    }
+}

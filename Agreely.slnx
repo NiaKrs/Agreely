@@ -1,3 +1,6 @@
 <Solution>
+  <Project Path="Agreely.Models/Agreely.Models.csproj" Id="fc6e76bf-5b95-4a7c-bb5d-f3f837833bfa" />
+  <Project Path="Agreely.Repositories/Agreely.Repositories.csproj" Id="87966247-52ea-456e-86be-a4f946d1fb9f" />
+  <Project Path="Agreely.Services/Agreely.Services.csproj" Id="2efe2635-c9d1-4f94-b3d1-700e80a4b12b" />
   <Project Path="Agreely/Agreely.csproj" />
 </Solution>
