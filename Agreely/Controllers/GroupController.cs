@@ -1,6 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Agreely.Models;
-using Agreely.Services;
+﻿using Agreely.Services.DTO;
+using Agreely.Services.Interfaces;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Agreely.Controllers
 {
@@ -20,11 +20,20 @@ namespace Agreely.Controllers
         }
 
         [HttpPost]
-        public IActionResult Create(string name, string? description)
+        public IActionResult Create(CreateGroupDto dto)
         {
-            int userId = 1;
-            int groupId = _groupService.CreateGroup(name, description, userId);
-            return RedirectToAction("Index", "Home");
+            try
+            {
+                dto.CreatedByUserId = 1; // hardcoded for now
+                int groupId = _groupService.CreateGroup(dto);
+                TempData["Success"] = "Group created successfully!";
+                return RedirectToAction("Index", "Home");
+            }
+            catch (Exception ex)
+            {
+                ViewData["Error"] = "Something went wrong. Please try again.";
+                return View();
+            }
         }
     }
 }

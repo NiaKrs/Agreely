@@ -1,7 +1,8 @@
-﻿using Agreely.Models;
+﻿using Agreely.Repositories.Models;
+using Agreely.Repositories.Interfaces;
 using Microsoft.Data.SqlClient;
 
-namespace Agreely.Repositories
+namespace Agreely.Repositories.Repositories
 {
     public class GroupRepository : IGroupRepository
     {

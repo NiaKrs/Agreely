@@ -1,5 +1,7 @@
-using Agreely.Repositories;
-using Agreely.Services;
+using Agreely.Repositories.Interfaces;
+using Agreely.Repositories.Repositories;
+using Agreely.Services.Interfaces;
+using Agreely.Services.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 

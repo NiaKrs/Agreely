@@ -1,6 +1,6 @@
-﻿using Agreely.Models;
+﻿using Agreely.Repositories.Models;
 
-namespace Agreely.Repositories
+namespace Agreely.Repositories.Interfaces
 {
     public interface IGroupRepository
     {

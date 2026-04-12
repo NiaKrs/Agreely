@@ -12,7 +12,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Agreely.Models\Agreely.Models.csproj" />
     <ProjectReference Include="..\Agreely.Services\Agreely.Services.csproj" />
   </ItemGroup>
 

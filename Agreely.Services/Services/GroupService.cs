@@ -1,7 +1,9 @@
-﻿using Agreely.Repositories;
-using Agreely.Models;
+﻿using Agreely.Repositories.Interfaces;
+using Agreely.Repositories.Models;
+using Agreely.Services.DTO;
+using Agreely.Services.Interfaces;
 
-namespace Agreely.Services
+namespace Agreely.Services.Services
 {
     public class GroupService : IGroupService
     {
@@ -14,13 +16,13 @@ namespace Agreely.Services
             _membershipRepo = membershipRepo;
         }
 
-        public int CreateGroup(string name, string? description, int userId)
+        public int CreateGroup(CreateGroupDto dto)
         {
             var group = new Group
             {
-                Name = name,
-                Description = description,
-                CreatedByUserId = userId
+                Name = dto.Name,
+                Description = dto.Description,
+                CreatedByUserId = dto.CreatedByUserId
             };
 
             int groupId = _groupRepo.CreateGroup(group);
@@ -28,7 +30,7 @@ namespace Agreely.Services
             var membership = new GroupMembership
             {
                 GroupId = groupId,
-                UserId = userId,
+                UserId = dto.CreatedByUserId
             };
 
             _membershipRepo.AddMember(membership);
