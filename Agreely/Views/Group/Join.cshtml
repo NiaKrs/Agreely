@@ -1,0 +1,21 @@
+﻿@{
+    ViewData["Title"] = "Join Group";
+}
+
+<h2>Join Group</h2>
+
+@if (ViewData["Error"] != null)
+{
+    <p style="color:red;">@ViewData["Error"]</p>
+}
+
+<form method="post" asp-action="Join" asp-controller="Group">
+    <div>
+        <label>Enter Group ID:</label>
+        <input type="number" name="groupId" required />
+    </div>
+    <div>
+        <a asp-action="Index" asp-controller="Home">Cancel</a>
+        <button type="submit">Join</button>
+    </div>
+</form>

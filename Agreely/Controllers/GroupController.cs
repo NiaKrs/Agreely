@@ -35,5 +35,28 @@ namespace Agreely.Controllers
                 return View();
             }
         }
+
+        [HttpGet]
+        public IActionResult Join()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public IActionResult Join(JoinGroupDto dto)
+        {
+            try
+            {
+                dto.UserId = 2; // hardcoded for now
+                _groupService.JoinGroup(dto);
+                TempData["Success"] = "Successfully joined the group!";
+                return RedirectToAction("Index", "Home");
+            }
+            catch (Exception ex)
+            {
+                ViewData["Error"] = ex.Message;
+                return View();
+            }
+        }
     }
 }

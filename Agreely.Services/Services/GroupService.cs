@@ -37,5 +37,23 @@ namespace Agreely.Services.Services
 
             return groupId;
         }
+
+        public void JoinGroup(JoinGroupDto dto)
+        {
+            var group = _groupRepo.GetGroupById(dto.GroupId);
+            if (group == null)
+                throw new Exception("Group not found.");
+
+            if (_membershipRepo.IsMember(dto.GroupId, dto.UserId))
+                throw new Exception("You are already a member of this group.");
+
+            var membership = new GroupMembership
+            {
+                GroupId = dto.GroupId,
+                UserId = dto.UserId
+            };
+
+            _membershipRepo.AddMember(membership);
+        }
     }
 }
