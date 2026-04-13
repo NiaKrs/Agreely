@@ -80,5 +80,36 @@ namespace Agreely.Repositories.Repositories
             }
         }
 
+        public List<Group> GetGroupsByUserId(int userId)
+        {
+            var groups = new List<Group>();
+
+            using (SqlConnection connection = new SqlConnection(_connectionString))
+            {
+                string query = @"SELECT g.GroupId, g.Name, g.Description, g.CreatedByUserId
+                         FROM [Group] g
+                         INNER JOIN [GroupMembership] gm ON g.GroupId = gm.GroupId
+                         WHERE gm.UserId = @UserId";
+
+                SqlCommand command = new SqlCommand(query, connection);
+                command.Parameters.AddWithValue("@UserId", userId);
+                connection.Open();
+
+                SqlDataReader reader = command.ExecuteReader();
+                while (reader.Read())
+                {
+                    groups.Add(new Group
+                    {
+                        GroupId = Convert.ToInt32(reader["GroupId"]),
+                        Name = reader["Name"].ToString()!,
+                        Description = reader["Description"] == DBNull.Value ? null : reader["Description"].ToString(),
+                        CreatedByUserId = Convert.ToInt32(reader["CreatedByUserId"])
+                    });
+                }
+            }
+
+            return groups;
+        } 
+
     }
 }

@@ -7,5 +7,6 @@ namespace Agreely.Services.Interfaces
         int CreateGroup(CreateGroupDto dto);
         void JoinGroup(JoinGroupDto dto);
         GroupDetailsDto GetGroupDetails(int groupId);
+        List<GroupSummaryDto> GetUserGroups(int userId);
     }
 }

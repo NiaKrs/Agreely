@@ -81,5 +81,17 @@ namespace Agreely.Services.Services
                 }).ToList()
             };
         }
+
+        public List<GroupSummaryDto> GetUserGroups(int userId)
+        {
+            var groups = _groupRepo.GetGroupsByUserId(userId);
+
+            return groups.Select(g => new GroupSummaryDto
+            {
+                GroupId = g.GroupId,
+                Name = g.Name,
+                Description = g.Description
+            }).ToList();
+        }
     }
 }

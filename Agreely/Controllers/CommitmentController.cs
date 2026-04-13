@@ -47,12 +47,13 @@ namespace Agreely.Controllers
                 if (commitment == null)
                 {
                     TempData["Error"] = "Commitment not found.";
-                    return RedirectToAction("Index", "Home");
+                    return RedirectToAction("MyGroups", "Group");
                 }
 
                 var dto = new UpdateCommitmentDto
                 {
                     CommitmentId = commitment.CommitmentId,
+                    GroupId = commitment.GroupId,
                     Title = commitment.Title,
                     Description = commitment.Description
                 };
@@ -62,7 +63,7 @@ namespace Agreely.Controllers
             catch (Exception ex)
             {
                 TempData["Error"] = ex.Message;
-                return RedirectToAction("Index", "Home");
+                return RedirectToAction("MyGroups", "Group");
             }
         }
 
@@ -73,7 +74,7 @@ namespace Agreely.Controllers
             {
                 _commitmentService.UpdateCommitment(dto);
                 TempData["Success"] = "Commitment updated successfully!";
-                return RedirectToAction("Details", "Group", new { groupId = TempData["GroupId"] });
+                return RedirectToAction("Details", "Group", new { groupId = dto.GroupId });
             }
             catch (Exception ex)
             {

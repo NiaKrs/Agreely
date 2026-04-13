@@ -27,7 +27,7 @@ namespace Agreely.Controllers
                 dto.CreatedByUserId = 1; // hardcoded for now
                 int groupId = _groupService.CreateGroup(dto);
                 TempData["Success"] = "Group created successfully!";
-                return RedirectToAction("Index", "Home");
+                return RedirectToAction("MyGroups", "Group");
             }
             catch (Exception ex)
             {
@@ -47,10 +47,10 @@ namespace Agreely.Controllers
         {
             try
             {
-                dto.UserId = 2; // hardcoded for now
+                dto.UserId = 1; // hardcoded for now
                 _groupService.JoinGroup(dto);
                 TempData["Success"] = "Successfully joined the group!";
-                return RedirectToAction("Index", "Home");
+                return RedirectToAction("MyGroups", "Group");
             }
             catch (Exception ex)
             {
@@ -66,6 +66,22 @@ namespace Agreely.Controllers
             {
                 var details = _groupService.GetGroupDetails(groupId);
                 return View(details);
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = ex.Message;
+                return RedirectToAction("Index", "Home");
+            }
+        }
+
+        [HttpGet]
+        public IActionResult MyGroups()
+        {
+            try
+            {
+                int userId = 1; // hardcoded for now
+                var groups = _groupService.GetUserGroups(userId);
+                return View(groups);
             }
             catch (Exception ex)
             {

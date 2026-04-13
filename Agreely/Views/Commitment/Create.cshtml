@@ -24,7 +24,7 @@
             </div>
             <div class="d-flex gap-2">
                 <button type="submit" class="btn btn-dark">Save</button>
-                <a asp-controller="Home" asp-action="Index" class="btn btn-outline-secondary">Cancel</a>
+                <a asp-controller="Group" asp-action="Details" asp-route-groupId="@ViewData["GroupId"]" class="btn btn-outline-secondary">Cancel</a>
             </div>
         </form>
     </div>
