@@ -58,5 +58,20 @@ namespace Agreely.Controllers
                 return View();
             }
         }
+
+        [HttpGet]
+        public IActionResult Details(int groupId)
+        {
+            try
+            {
+                var details = _groupService.GetGroupDetails(groupId);
+                return View(details);
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = ex.Message;
+                return RedirectToAction("Index", "Home");
+            }
+        }
     }
 }

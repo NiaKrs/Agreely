@@ -1,4 +1,4 @@
-﻿using Agreely.Services.DTOs;
+﻿using Agreely.Services.DTO;
 
 namespace Agreely.Services.Interfaces
 {

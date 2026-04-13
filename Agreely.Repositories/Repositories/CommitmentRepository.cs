@@ -33,5 +33,35 @@ namespace Agreely.Repositories.Repositories
                 return Convert.ToInt32(command.ExecuteScalar());
             }
         }
+
+        public List<Commitment> GetCommitmentsByGroupId(int groupId)
+        {
+            var commitments = new List<Commitment>();
+            using (SqlConnection connection = new SqlConnection(_connectionString))
+            {
+                string query = @"SELECT CommitmentId, GroupId, CreatedByUserId, Title, Description, CreatedAt, UpdatedAt
+                                 FROM [Commitment]
+                                 WHERE GroupId = @GroupId
+                                 ORDER BY CreatedAt DESC";
+                SqlCommand command = new SqlCommand(query, connection);
+                command.Parameters.AddWithValue("@GroupId", groupId);
+                connection.Open();
+                SqlDataReader reader = command.ExecuteReader();
+                while (reader.Read())
+                {
+                    commitments.Add(new Commitment
+                    {
+                        CommitmentId = Convert.ToInt32(reader["CommitmentId"]),
+                        GroupId = Convert.ToInt32(reader["GroupId"]),
+                        CreatedByUserId = Convert.ToInt32(reader["CreatedByUserId"]),
+                        Title = reader["Title"].ToString(),
+                        Description = reader["Description"] == DBNull.Value ? null : reader["Description"].ToString(),
+                        CreatedAt = Convert.ToDateTime(reader["CreatedAt"]),
+                        UpdatedAt = Convert.ToDateTime(reader["UpdatedAt"])
+                    });
+                }
+            }
+            return commitments;
+        }
     }
 }

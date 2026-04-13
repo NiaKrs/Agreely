@@ -9,11 +9,13 @@ namespace Agreely.Services.Services
     {
         private readonly IGroupRepository _groupRepo;
         private readonly IGroupMembershipRepository _membershipRepo;
+        private readonly ICommitmentRepository _commitmentRepo;
 
-        public GroupService(IGroupRepository groupRepo, IGroupMembershipRepository membershipRepo)
+        public GroupService(IGroupRepository groupRepo, IGroupMembershipRepository membershipRepo, ICommitmentRepository commitmentRepo)
         {
             _groupRepo = groupRepo;
             _membershipRepo = membershipRepo;
+            _commitmentRepo = commitmentRepo;
         }
 
         public int CreateGroup(CreateGroupDto dto)
@@ -54,6 +56,30 @@ namespace Agreely.Services.Services
             };
 
             _membershipRepo.AddMember(membership);
+        }
+
+        public GroupDetailsDto GetGroupDetails(int groupId)
+        {
+            var group = _groupRepo.GetGroupById(groupId);
+            if (group == null)
+                throw new Exception("Group not found.");
+
+            var commitments = _commitmentRepo.GetCommitmentsByGroupId(groupId);
+            int memberCount = _groupRepo.GetMemberCount(groupId);
+
+            return new GroupDetailsDto
+            {
+                GroupId = group.GroupId,
+                Name = group.Name,
+                Description = group.Description,
+                MemberCount = memberCount,
+                Commitments = commitments.Select(c => new ViewCommitmentDto
+                {
+                    CommitmentId = c.CommitmentId,
+                    Title = c.Title,
+                    Description = c.Description
+                }).ToList()
+            };
         }
     }
 }

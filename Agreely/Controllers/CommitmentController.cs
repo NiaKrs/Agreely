@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Agreely.Services.DTOs;
+using Agreely.Services.DTO;
 using Agreely.Services.Interfaces;
 
 namespace Agreely.Controllers

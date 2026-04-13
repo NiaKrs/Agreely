@@ -62,5 +62,23 @@ namespace Agreely.Repositories.Repositories
                 return null;
             }
         }
+
+        public int GetMemberCount(int groupId) 
+        {
+            using (SqlConnection connection = new SqlConnection(_connectionString))
+            {
+                string query = @"SELECT COUNT(1) FROM [GroupMembership] 
+                         WHERE GroupId = @GroupId";
+
+                SqlCommand command = new SqlCommand(query, connection);
+                command.Parameters.AddWithValue("@GroupId", groupId);
+                
+
+                connection.Open();
+                int count = Convert.ToInt32(command.ExecuteScalar());
+                return count;
+            }
+        }
+
     }
 }

@@ -1,10 +1,10 @@
 ﻿namespace Agreely.Services.DTO
 {
-    public class CreateCommitmentDto
+    public class ViewCommitmentDto
+
     {
+        public int CommitmentId { get; set; }
         public string Title { get; set; }
         public string? Description { get; set; }
-        public int CreatedByUserId { get; set; }
-        public int GroupId { get; set; }
     }
 }

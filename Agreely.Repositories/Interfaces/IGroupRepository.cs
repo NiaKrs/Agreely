@@ -6,5 +6,6 @@ namespace Agreely.Repositories.Interfaces
     {
         int CreateGroup(Group group);
         Group GetGroupById(int groupId);
+        int GetMemberCount(int groupId);
     }
 }
