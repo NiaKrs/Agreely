@@ -21,6 +21,10 @@ builder.Services.AddScoped<IGroupMembershipRepository, GroupMembershipRepository
 
 builder.Services.AddScoped<IGroupService, GroupService>();
 
+builder.Services.AddScoped<ICommitmentRepository, CommitmentRepository>(
+    provider => new CommitmentRepository(connectionString));
+
+builder.Services.AddScoped<ICommitmentService, CommitmentService>();
 
 var app = builder.Build();
 

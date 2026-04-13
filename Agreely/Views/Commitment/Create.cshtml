@@ -1,0 +1,27 @@
+﻿@{
+    ViewData["Title"] = "Create Commitment";
+}
+
+<h2>Create Commitment</h2>
+
+@if (ViewData["Error"] != null)
+{
+    <p style="color:red;">@ViewData["Error"]</p>
+}
+
+<form method="post" asp-action="Create" asp-controller="Commitment">
+    <input type="hidden" name="groupId" value="@ViewData["GroupId"]" />
+
+    <div>
+        <label>Title:</label>
+        <input type="text" name="title" required />
+    </div>
+    <div>
+        <label>Description:</label>
+        <input type="text" name="description" />
+    </div>
+    <div>
+        <a asp-action="Index" asp-controller="Home">Cancel</a>
+        <button type="submit">Create</button>
+    </div>
+</form>
