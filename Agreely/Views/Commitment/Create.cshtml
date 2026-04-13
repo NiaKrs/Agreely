@@ -1,27 +1,31 @@
 ﻿@{
-    ViewData["Title"] = "Create Commitment";
+    ViewData["Title"] = "Add Commitment";
 }
 
-<h2>Create Commitment</h2>
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <h2 class="mb-4">Add Commitment</h2>
 
-@if (ViewData["Error"] != null)
-{
-    <p style="color:red;">@ViewData["Error"]</p>
-}
+        @if (ViewData["Error"] != null)
+        {
+            <div class="alert alert-danger">@ViewData["Error"]</div>
+        }
 
-<form method="post" asp-action="Create" asp-controller="Commitment">
-    <input type="hidden" name="groupId" value="@ViewData["GroupId"]" />
+        <form method="post" asp-action="Create" asp-controller="Commitment">
+            <input type="hidden" name="groupId" value="@ViewData["GroupId"]" />
 
-    <div>
-        <label>Title:</label>
-        <input type="text" name="title" required />
+            <div class="mb-3">
+                <label class="form-label">Title</label>
+                <input type="text" name="title" class="form-control" required />
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Description</label>
+                <textarea name="description" class="form-control" rows="3"></textarea>
+            </div>
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-dark">Save</button>
+                <a asp-controller="Home" asp-action="Index" class="btn btn-outline-secondary">Cancel</a>
+            </div>
+        </form>
     </div>
-    <div>
-        <label>Description:</label>
-        <input type="text" name="description" />
-    </div>
-    <div>
-        <a asp-action="Index" asp-controller="Home">Cancel</a>
-        <button type="submit">Create</button>
-    </div>
-</form>
+</div>

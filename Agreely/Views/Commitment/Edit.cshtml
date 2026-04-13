@@ -1,30 +1,33 @@
 ﻿@model Agreely.Services.DTO.UpdateCommitmentDto
-@using Agreely.Services.DTO
 
 @{
     ViewData["Title"] = "Edit Commitment";
 }
 
-<h2>Edit Commitment</h2>
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <h2 class="mb-4">Edit Commitment</h2>
 
-@if (ViewData["Error"] != null)
-{
-    <p style="color:red;">@ViewData["Error"]</p>
-}
+        @if (ViewData["Error"] != null)
+        {
+            <div class="alert alert-danger">@ViewData["Error"]</div>
+        }
 
-<form method="post">
-    <input type="hidden" asp-for="CommitmentId" />
+        <form method="post" asp-action="Edit" asp-controller="Commitment">
+            <input type="hidden" asp-for="CommitmentId" />
 
-    <div>
-        <label asp-for="Title"></label>
-        <input asp-for="Title" />
+            <div class="mb-3">
+                <label class="form-label">Title</label>
+                <input asp-for="Title" class="form-control" required />
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Description</label>
+                <textarea asp-for="Description" class="form-control" rows="3"></textarea>
+            </div>
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-dark">Save Changes</button>
+                <a asp-controller="Home" asp-action="Index" class="btn btn-outline-secondary">Cancel</a>
+            </div>
+        </form>
     </div>
-
-    <div>
-        <label asp-for="Description"></label>
-        <textarea asp-for="Description"></textarea>
-    </div>
-
-    <button type="submit">Save Changes</button>
-    <a asp-action="Index" asp-controller="Home">Cancel</a>
-</form>
+</div>

@@ -5,35 +5,39 @@
     ViewData["Title"] = "Group Details";
 }
 
-<h2>Group Details</h2>
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="mb-0">@Model.Name</h2>
+    <a asp-action="Create" asp-controller="Commitment" asp-route-groupId="@Model.GroupId" class="btn btn-dark">
+        + Add Commitment
+    </a>
+</div>
 
-<a asp-action="Create" asp-controller="Commitment" asp-route-groupId="@Model.GroupId">Add Commitment</a>
-
-<p><strong>Group Name:</strong> @Model.Name</p>
-<p><strong>Description:</strong> @Model.Description</p>
-<p><strong>Group ID:</strong> @Model.GroupId</p>
-<p><strong>Members:</strong> @Model.MemberCount</p>
+<p class="text-muted">@Model.Description</p>
+<p><span class="badge bg-secondary">Group ID: @Model.GroupId</span> &nbsp; <span class="badge bg-secondary">Members: @Model.MemberCount</span></p>
 
 <hr />
 
 @if (Model.Commitments.Count == 0)
 {
-    <p>No commitments yet.</p>
+    <p class="text-muted">No commitments yet. Add one above!</p>
 }
 else
 {
     foreach (var commitment in Model.Commitments)
     {
-        <div>
-            <p><strong>@commitment.Title</strong></p>
-            <p>@commitment.Description</p>
-            <a asp-action="Edit" asp-controller="Commitment" asp-route-id="@commitment.CommitmentId">Edit</a>
-            <form method="post" asp-action="Delete" asp-controller="Commitment">
-                <input type="hidden" name="id" value="@commitment.CommitmentId" />
-                <input type="hidden" name="groupId" value="@Model.GroupId" />
-                <button type="submit">Delete</button>
-            </form>
+        <div class="card mb-3">
+            <div class="card-body">
+                <h5 class="card-title">@commitment.Title</h5>
+                <p class="card-text text-muted">@commitment.Description</p>
+                <div class="d-flex gap-2">
+                    <a asp-action="Edit" asp-controller="Commitment" asp-route-id="@commitment.CommitmentId" class="btn btn-sm btn-outline-dark">Edit</a>
+                    <form method="post" asp-action="Delete" asp-controller="Commitment">
+                        <input type="hidden" name="id" value="@commitment.CommitmentId" />
+                        <input type="hidden" name="groupId" value="@Model.GroupId" />
+                        <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
+                    </form>
+                </div>
+            </div>
         </div>
-        <hr />
     }
 }

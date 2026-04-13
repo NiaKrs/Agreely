@@ -2,20 +2,24 @@
     ViewData["Title"] = "Join Group";
 }
 
-<h2>Join Group</h2>
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <h2 class="mb-4">Join Group</h2>
 
-@if (ViewData["Error"] != null)
-{
-    <p style="color:red;">@ViewData["Error"]</p>
-}
+        @if (ViewData["Error"] != null)
+        {
+            <div class="alert alert-danger">@ViewData["Error"]</div>
+        }
 
-<form method="post" asp-action="Join" asp-controller="Group">
-    <div>
-        <label>Enter Group ID:</label>
-        <input type="number" name="groupId" required />
+        <form method="post" asp-action="Join" asp-controller="Group">
+            <div class="mb-3">
+                <label class="form-label">Group ID</label>
+                <input type="number" name="groupId" class="form-control" required />
+            </div>
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-dark">Join</button>
+                <a asp-controller="Home" asp-action="Index" class="btn btn-outline-secondary">Cancel</a>
+            </div>
+        </form>
     </div>
-    <div>
-        <a asp-action="Index" asp-controller="Home">Cancel</a>
-        <button type="submit">Join</button>
-    </div>
-</form>
+</div>
