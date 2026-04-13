@@ -63,5 +63,61 @@ namespace Agreely.Repositories.Repositories
             }
             return commitments;
         }
+
+        public void UpdateCommitment(Commitment commitment)
+        {
+            using (SqlConnection connection = new SqlConnection(_connectionString))
+            {
+                string query = @"UPDATE [Commitment] 
+                                 SET Title = @Title, Description = @Description, UpdatedAt = GETDATE()
+                                 WHERE CommitmentId = @CommitmentId";
+                SqlCommand command = new SqlCommand(query, connection);
+                command.Parameters.AddWithValue("@Title", commitment.Title);
+                command.Parameters.AddWithValue("@Description", (object?)commitment.Description ?? DBNull.Value);
+                command.Parameters.AddWithValue("@CommitmentId", commitment.CommitmentId);
+                connection.Open();
+                command.ExecuteNonQuery();
+            }
+        }
+
+        public void DeleteCommitment(int commitmentId)
+        {
+            using (SqlConnection connection = new SqlConnection(_connectionString))
+            {
+                string query = @"DELETE FROM [Commitment] WHERE CommitmentId = @CommitmentId";
+                SqlCommand command = new SqlCommand(query, connection);
+                command.Parameters.AddWithValue("@CommitmentId", commitmentId);
+                connection.Open();
+                command.ExecuteNonQuery();
+            }
+        }
+
+        public Commitment? GetCommitmentById(int commitmentId)
+        {
+            using (SqlConnection connection = new SqlConnection(_connectionString))
+            {
+                string query = @"SELECT CommitmentId, GroupId, CreatedByUserId, Title, Description, CreatedAt, UpdatedAt
+                                 FROM [Commitment]
+                                 WHERE CommitmentId = @CommitmentId";
+                SqlCommand command = new SqlCommand(query, connection);
+                command.Parameters.AddWithValue("@CommitmentId", commitmentId);
+                connection.Open();
+                SqlDataReader reader = command.ExecuteReader();
+                if (reader.Read())
+                {
+                    return new Commitment
+                    {
+                        CommitmentId = Convert.ToInt32(reader["CommitmentId"]),
+                        GroupId = Convert.ToInt32(reader["GroupId"]),
+                        CreatedByUserId = Convert.ToInt32(reader["CreatedByUserId"]),
+                        Title = reader["Title"].ToString(),
+                        Description = reader["Description"] == DBNull.Value ? null : reader["Description"].ToString(),
+                        CreatedAt = Convert.ToDateTime(reader["CreatedAt"]),
+                        UpdatedAt = Convert.ToDateTime(reader["UpdatedAt"])
+                    };
+                }
+            }
+            return null;
+        }
     }
 }

@@ -9,13 +9,13 @@ namespace Agreely.Services.Services
     {
         private readonly IGroupRepository _groupRepo;
         private readonly IGroupMembershipRepository _membershipRepo;
-        private readonly ICommitmentRepository _commitmentRepo;
+        private readonly ICommitmentService _commitmentService;
 
-        public GroupService(IGroupRepository groupRepo, IGroupMembershipRepository membershipRepo, ICommitmentRepository commitmentRepo)
+        public GroupService(IGroupRepository groupRepo, IGroupMembershipRepository membershipRepo, ICommitmentService commitmentService)
         {
             _groupRepo = groupRepo;
             _membershipRepo = membershipRepo;
-            _commitmentRepo = commitmentRepo;
+            _commitmentService = commitmentService;
         }
 
         public int CreateGroup(CreateGroupDto dto)
@@ -64,7 +64,7 @@ namespace Agreely.Services.Services
             if (group == null)
                 throw new Exception("Group not found.");
 
-            var commitments = _commitmentRepo.GetCommitmentsByGroupId(groupId);
+            var commitments = _commitmentService.GetCommitmentsByGroupId(groupId);
             int memberCount = _groupRepo.GetMemberCount(groupId);
 
             return new GroupDetailsDto

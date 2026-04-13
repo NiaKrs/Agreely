@@ -37,5 +37,65 @@ namespace Agreely.Controllers
                 return View();
             }
         }
+
+        [HttpGet]
+        public IActionResult Edit(int id)
+        {
+            try
+            {
+                var commitment = _commitmentService.GetCommitmentById(id);
+                if (commitment == null)
+                {
+                    TempData["Error"] = "Commitment not found.";
+                    return RedirectToAction("Index", "Home");
+                }
+
+                var dto = new UpdateCommitmentDto
+                {
+                    CommitmentId = commitment.CommitmentId,
+                    Title = commitment.Title,
+                    Description = commitment.Description
+                };
+
+                return View(dto);
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = ex.Message;
+                return RedirectToAction("Index", "Home");
+            }
+        }
+
+        [HttpPost]
+        public IActionResult Edit(UpdateCommitmentDto dto)
+        {
+            try
+            {
+                _commitmentService.UpdateCommitment(dto);
+                TempData["Success"] = "Commitment updated successfully!";
+                return RedirectToAction("Details", "Group", new { groupId = TempData["GroupId"] });
+            }
+            catch (Exception ex)
+            {
+                ViewData["Error"] = ex.Message;
+                return View(dto);
+            }
+        }
+
+        [HttpPost]
+        public IActionResult Delete(int id, int groupId)
+        {
+            try
+            {
+                _commitmentService.DeleteCommitment(id);
+                TempData["Success"] = "Commitment deleted successfully!";
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = ex.Message;
+            }
+
+            return RedirectToAction("Details", "Group", new { groupId });
+        }
     }
 }

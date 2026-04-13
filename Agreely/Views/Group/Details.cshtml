@@ -28,7 +28,11 @@ else
             <p><strong>@commitment.Title</strong></p>
             <p>@commitment.Description</p>
             <a asp-action="Edit" asp-controller="Commitment" asp-route-id="@commitment.CommitmentId">Edit</a>
-            <a asp-action="Delete" asp-controller="Commitment" asp-route-id="@commitment.CommitmentId">Delete</a>
+            <form method="post" asp-action="Delete" asp-controller="Commitment">
+                <input type="hidden" name="id" value="@commitment.CommitmentId" />
+                <input type="hidden" name="groupId" value="@Model.GroupId" />
+                <button type="submit">Delete</button>
+            </form>
         </div>
         <hr />
     }

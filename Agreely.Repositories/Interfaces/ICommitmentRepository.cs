@@ -6,5 +6,8 @@ namespace Agreely.Repositories.Interfaces
     {
         int CreateCommitment(Commitment commitment);
         List<Commitment> GetCommitmentsByGroupId(int groupId);
+        Commitment? GetCommitmentById(int commitmentId);
+        void UpdateCommitment(Commitment commitment);
+        void DeleteCommitment(int commitmentId);
     }
 }

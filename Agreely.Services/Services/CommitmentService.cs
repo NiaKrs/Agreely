@@ -31,5 +31,37 @@ namespace Agreely.Services.Services
 
             return _commitmentRepo.CreateCommitment(commitment);
         }
+
+        public List<Commitment> GetCommitmentsByGroupId(int groupId)
+        {
+            return _commitmentRepo.GetCommitmentsByGroupId(groupId);
+        }
+
+
+        public Commitment? GetCommitmentById(int commitmentId)
+        {
+            return _commitmentRepo.GetCommitmentById(commitmentId);
+        }
+
+        public void UpdateCommitment(UpdateCommitmentDto dto)
+        {
+            var commitment = _commitmentRepo.GetCommitmentById(dto.CommitmentId);
+            if (commitment == null)
+                throw new Exception("Commitment not found.");
+
+            commitment.Title = dto.Title;
+            commitment.Description = dto.Description;
+
+            _commitmentRepo.UpdateCommitment(commitment);
+        }
+
+        public void DeleteCommitment(int commitmentId)
+        {
+            var commitment = _commitmentRepo.GetCommitmentById(commitmentId);
+            if (commitment == null)
+                throw new Exception("Commitment not found.");
+
+            _commitmentRepo.DeleteCommitment(commitmentId);
+        }
     }
 }

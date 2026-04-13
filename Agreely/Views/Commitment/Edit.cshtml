@@ -1,0 +1,30 @@
+﻿@model Agreely.Services.DTO.UpdateCommitmentDto
+@using Agreely.Services.DTO
+
+@{
+    ViewData["Title"] = "Edit Commitment";
+}
+
+<h2>Edit Commitment</h2>
+
+@if (ViewData["Error"] != null)
+{
+    <p style="color:red;">@ViewData["Error"]</p>
+}
+
+<form method="post">
+    <input type="hidden" asp-for="CommitmentId" />
+
+    <div>
+        <label asp-for="Title"></label>
+        <input asp-for="Title" />
+    </div>
+
+    <div>
+        <label asp-for="Description"></label>
+        <textarea asp-for="Description"></textarea>
+    </div>
+
+    <button type="submit">Save Changes</button>
+    <a asp-action="Index" asp-controller="Home">Cancel</a>
+</form>
