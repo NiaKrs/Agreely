@@ -22,6 +22,8 @@ namespace Agreely.Controllers
         [HttpPost]
         public IActionResult Create(CreateGroupDto dto)
         {
+            if (!ModelState.IsValid)
+                return View(dto);
             try
             {
                 dto.CreatedByUserId = 1; // hardcoded for now
@@ -45,6 +47,8 @@ namespace Agreely.Controllers
         [HttpPost]
         public IActionResult Join(JoinGroupDto dto)
         {
+            if (!ModelState.IsValid)
+                return View(dto);
             try
             {
                 dto.UserId = 1; // hardcoded for now

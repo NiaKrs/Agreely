@@ -23,6 +23,11 @@ namespace Agreely.Controllers
         [HttpPost]
         public IActionResult Create(CreateCommitmentDto dto)
         {
+            if (!ModelState.IsValid)
+            {
+                ViewData["GroupId"] = dto.GroupId;
+                return View(dto);
+            }
             try
             {
                 dto.CreatedByUserId = 1; // hardcoded for now
@@ -41,6 +46,7 @@ namespace Agreely.Controllers
         [HttpGet]
         public IActionResult Edit(int id)
         {
+
             try
             {
                 var commitment = _commitmentService.GetCommitmentById(id);
@@ -70,6 +76,8 @@ namespace Agreely.Controllers
         [HttpPost]
         public IActionResult Edit(UpdateCommitmentDto dto)
         {
+            if (!ModelState.IsValid)
+                return View(dto);
             try
             {
                 _commitmentService.UpdateCommitment(dto);
