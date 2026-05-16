@@ -5,8 +5,8 @@ namespace Agreely.Services.Interfaces
 {
     public interface IGroupService
     {
-        int CreateGroup(CreateGroupRequest dto);
-        void JoinGroup(JoinGroupRequest dto);
+        int CreateGroup(CreateGroupRequest request);
+        void JoinGroup(JoinGroupRequest request);
         GroupDetailsResponse GetGroupDetails(int groupId);
         List<GroupSummaryResponse> GetUserGroups(int userId);
     }

@@ -26,6 +26,11 @@ builder.Services.AddScoped<ICommitmentRepository, CommitmentRepository>(
 
 builder.Services.AddScoped<ICommitmentService, CommitmentService>();
 
+builder.Services.AddScoped<IUserRepository, UserRepository>(
+    provider => new UserRepository(connectionString));
+
+builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddSession();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -41,7 +46,9 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
+app.UseSession();
 app.UseAuthorization();
+
 
 app.MapControllerRoute(
     name: "default",

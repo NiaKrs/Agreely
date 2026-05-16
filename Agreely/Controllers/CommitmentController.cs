@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Agreely.Controllers
 {
-    public class CommitmentController : Controller
+    public class CommitmentController : BaseController
     {
         private readonly ICommitmentService _commitmentService;
 
@@ -32,7 +32,7 @@ namespace Agreely.Controllers
                     Title = vm.Title,
                     Description = vm.Description,
                     GroupId = vm.GroupId,
-                    CreatedByUserId = 1 // hardcoded for now
+                    CreatedByUserId = GetSessionUserId()
                 };
                 _commitmentService.CreateCommitment(request);
                 TempData["Success"] = "Commitment created successfully!";
