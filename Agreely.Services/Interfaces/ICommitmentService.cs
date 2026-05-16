@@ -1,14 +1,14 @@
-﻿using Agreely.Repositories.Models;
-using Agreely.Services.DTO;
+﻿using Agreely.Services.DTO.Requests;
+using Agreely.Services.DTO.Responses;
 
 namespace Agreely.Services.Interfaces
 {
     public interface ICommitmentService
     {
-        int CreateCommitment(CreateCommitmentDto dto);
-        List<Commitment> GetCommitmentsByGroupId(int groupId);
-        Commitment? GetCommitmentById(int commitmentId);
-        void UpdateCommitment(UpdateCommitmentDto dto);
+        int CreateCommitment(CreateCommitmentRequest dto);
+        List<ViewCommitmentResponse> GetCommitmentsByGroupId(int groupId);
+        ViewCommitmentResponse? GetCommitmentById(int commitmentId);
+        void UpdateCommitment(UpdateCommitmentRequest dto);
         void DeleteCommitment(int commitmentId);
         
     }

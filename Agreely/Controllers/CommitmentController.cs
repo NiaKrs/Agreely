@@ -1,6 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Agreely.Services.DTO;
+﻿using Agreely.Services.DTO.Requests;
 using Agreely.Services.Interfaces;
+using Agreely.ViewModels;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Agreely.Controllers
 {
@@ -16,55 +17,53 @@ namespace Agreely.Controllers
         [HttpGet]
         public IActionResult Create(int groupId)
         {
-            ViewData["GroupId"] = groupId;
-            return View();
+            return View(new CreateCommitmentViewModel { GroupId = groupId });
         }
 
         [HttpPost]
-        public IActionResult Create(CreateCommitmentDto dto)
+        public IActionResult Create(CreateCommitmentViewModel vm)
         {
             if (!ModelState.IsValid)
-            {
-                ViewData["GroupId"] = dto.GroupId;
-                return View(dto);
-            }
+                return View(vm);
             try
             {
-                dto.CreatedByUserId = 1; // hardcoded for now
-                int commitmentId = _commitmentService.CreateCommitment(dto);
+                var request = new CreateCommitmentRequest
+                {
+                    Title = vm.Title,
+                    Description = vm.Description,
+                    GroupId = vm.GroupId,
+                    CreatedByUserId = 1 // hardcoded for now
+                };
+                _commitmentService.CreateCommitment(request);
                 TempData["Success"] = "Commitment created successfully!";
-                return RedirectToAction("Index", "Home");
+                return RedirectToAction("Details", "Group", new { groupId = vm.GroupId });
             }
             catch (Exception ex)
             {
                 ViewData["Error"] = ex.Message;
-                ViewData["GroupId"] = dto.GroupId;
-                return View();
+                return View(vm);
             }
         }
 
         [HttpGet]
         public IActionResult Edit(int id)
         {
-
             try
             {
-                var commitment = _commitmentService.GetCommitmentById(id);
-                if (commitment == null)
+                var response = _commitmentService.GetCommitmentById(id);
+                if (response == null)
                 {
                     TempData["Error"] = "Commitment not found.";
                     return RedirectToAction("MyGroups", "Group");
                 }
-
-                var dto = new UpdateCommitmentDto
+                var vm = new EditCommitmentViewModel
                 {
-                    CommitmentId = commitment.CommitmentId,
-                    GroupId = commitment.GroupId,
-                    Title = commitment.Title,
-                    Description = commitment.Description
+                    CommitmentId = response.CommitmentId,
+                    GroupId = response.GroupId,
+                    Title = response.Title,
+                    Description = response.Description
                 };
-
-                return View(dto);
+                return View(vm);
             }
             catch (Exception ex)
             {
@@ -74,20 +73,27 @@ namespace Agreely.Controllers
         }
 
         [HttpPost]
-        public IActionResult Edit(UpdateCommitmentDto dto)
+        public IActionResult Edit(EditCommitmentViewModel vm)
         {
             if (!ModelState.IsValid)
-                return View(dto);
+                return View(vm);
             try
             {
-                _commitmentService.UpdateCommitment(dto);
+                var request = new UpdateCommitmentRequest
+                {
+                    CommitmentId = vm.CommitmentId,
+                    GroupId = vm.GroupId,
+                    Title = vm.Title,
+                    Description = vm.Description
+                };
+                _commitmentService.UpdateCommitment(request);
                 TempData["Success"] = "Commitment updated successfully!";
-                return RedirectToAction("Details", "Group", new { groupId = dto.GroupId });
+                return RedirectToAction("Details", "Group", new { groupId = vm.GroupId });
             }
             catch (Exception ex)
             {
                 ViewData["Error"] = ex.Message;
-                return View(dto);
+                return View(vm);
             }
         }
 
@@ -103,7 +109,6 @@ namespace Agreely.Controllers
             {
                 TempData["Error"] = ex.Message;
             }
-
             return RedirectToAction("Details", "Group", new { groupId });
         }
     }

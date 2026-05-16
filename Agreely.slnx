@@ -3,4 +3,5 @@
   <Project Path="Agreely.Services/Agreely.Services.csproj" Id="2efe2635-c9d1-4f94-b3d1-700e80a4b12b" />
   <Project Path="Agreely.UnitTests/Agreely.UnitTests.csproj" Id="1fc4b3df-9783-4e3d-a084-4f7841186f69" />
   <Project Path="Agreely/Agreely.csproj" />
+  <Project Path="Domain/Domain.csproj" Id="0d5346f4-0d18-44b8-b491-8d7249b4b048" />
 </Solution>

@@ -1,4 +1,5 @@
-﻿namespace Agreely.Repositories.Models
+﻿namespace Agreely.Domain
+    
 {
     public class Group
     {

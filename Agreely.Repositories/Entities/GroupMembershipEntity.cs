@@ -1,6 +1,6 @@
-﻿namespace Agreely.Repositories.Models
+﻿namespace Agreely.Repositories.Entities
 {
-    public class GroupMembership
+    public class GroupMembershipEntity
     {
         public int GroupMembershipId { get; set; }
         public int GroupId { get; set; }
