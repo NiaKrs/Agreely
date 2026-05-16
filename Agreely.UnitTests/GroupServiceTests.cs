@@ -1,9 +1,9 @@
-using System.Timers;
 using Agreely.Repositories.Interfaces;
-using Agreely.Repositories.Models;
-using Agreely.Services.DTO;
+using Agreely.Services.DTO.Requests;
+using Agreely.Services.DTO.Responses;
 using Agreely.Services.Interfaces;
 using Agreely.Services.Services;
+using Agreely.Domain;
 using Moq;
 
 namespace Agreely.Tests
@@ -31,7 +31,7 @@ namespace Agreely.Tests
         [Fact]
         public void CreateGroup_ValidDto_ReturnsGroupId()
         {
-            var dto = new CreateGroupDto { Name = "Test Group", Description = "Desc", CreatedByUserId = 1 };
+            var dto = new CreateGroupRequest { Name = "Test Group", Description = "Desc", CreatedByUserId = 1 };
             _groupRepoMock.Setup(r => r.CreateGroup(It.IsAny<Group>())).Returns(42);
 
             var result = _groupService.CreateGroup(dto);
@@ -44,7 +44,7 @@ namespace Agreely.Tests
         [Fact]
         public void JoinGroup_ValidDto_AddsMember()
         {
-            var dto = new JoinGroupDto { GroupId = 1, UserId = 2 };
+            var dto = new JoinGroupRequest { GroupId = 1, UserId = 2 };
             _groupRepoMock.Setup(r => r.GetGroupById(1)).Returns(new Group { GroupId = 1, Name = "Test" });
             _membershipRepoMock.Setup(r => r.IsMember(1, 2)).Returns(false);
 
@@ -57,7 +57,7 @@ namespace Agreely.Tests
         [Fact]
         public void JoinGroup_GroupNotFound_ThrowsException()
         {
-            var dto = new JoinGroupDto { GroupId = 99, UserId = 1 };
+            var dto = new JoinGroupRequest { GroupId = 99, UserId = 1 };
             _groupRepoMock.Setup(r => r.GetGroupById(99)).Returns((Group?)null);
 
             var ex = Assert.Throws<Exception>(() => _groupService.JoinGroup(dto));
@@ -68,7 +68,7 @@ namespace Agreely.Tests
         [Fact]
         public void JoinGroup_AlreadyMember_ThrowsException()
         {
-            var dto = new JoinGroupDto { GroupId = 1, UserId = 1 };
+            var dto = new JoinGroupRequest { GroupId = 1, UserId = 1 };
             _groupRepoMock.Setup(r => r.GetGroupById(1)).Returns(new Group { GroupId = 1, Name = "Test" });
             _membershipRepoMock.Setup(r => r.IsMember(1, 1)).Returns(true);
 
@@ -82,7 +82,7 @@ namespace Agreely.Tests
         {
             _groupRepoMock.Setup(r => r.GetGroupById(1)).Returns(new Group { GroupId = 1, Name = "Test" });
             _groupRepoMock.Setup(r => r.GetMemberCount(1)).Returns(3);
-            _commitmentServiceMock.Setup(s => s.GetCommitmentsByGroupId(1)).Returns(new List<Commitment>());
+            _commitmentServiceMock.Setup(s => s.GetCommitmentsByGroupId(1)).Returns(new List<ViewCommitmentResponse>());
 
             var result = _groupService.GetGroupDetails(1);
 

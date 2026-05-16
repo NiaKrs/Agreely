@@ -1,5 +1,7 @@
-﻿using Agreely.Repositories.Models;
+﻿using Agreely.Repositories.Entities;
 using Agreely.Repositories.Interfaces;
+using Agreely.Domain;
+using Agreely.Repositories.Mappers;
 using Microsoft.Data.SqlClient;
 
 namespace Agreely.Repositories.Repositories
@@ -28,12 +30,11 @@ namespace Agreely.Repositories.Repositories
                 
 
                 connection.Open();
-                int newGroupId = Convert.ToInt32(command.ExecuteScalar());
-                return newGroupId;
+                return Convert.ToInt32(command.ExecuteScalar());
             }
         }
 
-        public Group GetGroupById(int groupId)
+        public Group? GetGroupById(int groupId)
         {
             using (SqlConnection connection = new SqlConnection(_connectionString))
             {
@@ -49,14 +50,15 @@ namespace Agreely.Repositories.Repositories
 
                 if (reader.Read())
                 {
-                    return new Group
+                    var entity = new GroupEntity
                     {
                         GroupId = Convert.ToInt32(reader["GroupId"]),
-                        Name = reader["Name"].ToString(),
+                        Name = reader["Name"].ToString()!,
                         Description = reader["Description"] == DBNull.Value ? null : reader["Description"].ToString(),
                         CreatedByUserId = Convert.ToInt32(reader["CreatedByUserId"]),
                         CreatedAt = Convert.ToDateTime(reader["CreatedAt"])
                     };
+                    return GroupMapper.ToDomain(entity);
                 }
 
                 return null;
@@ -75,8 +77,7 @@ namespace Agreely.Repositories.Repositories
                 
 
                 connection.Open();
-                int count = Convert.ToInt32(command.ExecuteScalar());
-                return count;
+                return Convert.ToInt32(command.ExecuteScalar());
             }
         }
 
@@ -98,13 +99,14 @@ namespace Agreely.Repositories.Repositories
                 SqlDataReader reader = command.ExecuteReader();
                 while (reader.Read())
                 {
-                    groups.Add(new Group
+                    var entity = new GroupEntity
                     {
                         GroupId = Convert.ToInt32(reader["GroupId"]),
                         Name = reader["Name"].ToString()!,
                         Description = reader["Description"] == DBNull.Value ? null : reader["Description"].ToString(),
                         CreatedByUserId = Convert.ToInt32(reader["CreatedByUserId"])
-                    });
+                    };
+                    groups.Add(GroupMapper.ToDomain(entity));
                 }
             }
 

@@ -1,6 +1,6 @@
 ﻿using Agreely.Repositories.Interfaces;
-using Agreely.Repositories.Models;
-using Agreely.Services.DTO;
+using Agreely.Services.DTO.Requests;
+using Agreely.Domain;
 using Agreely.Services.Services;
 using Moq;
 
@@ -26,7 +26,7 @@ namespace Agreely.Tests
         [Fact]
         public void CreateCommitment_ValidDto_ReturnsCommitmentId()
         {
-            var dto = new CreateCommitmentDto { GroupId = 1, CreatedByUserId = 1, Title = "Test", Description = "Desc" };
+            var dto = new CreateCommitmentRequest { GroupId = 1, CreatedByUserId = 1, Title = "Test", Description = "Desc" };
             _membershipRepoMock.Setup(r => r.IsMember(1, 1)).Returns(true);
             _commitmentRepoMock.Setup(r => r.CreateCommitment(It.IsAny<Commitment>())).Returns(10);
 
@@ -39,7 +39,7 @@ namespace Agreely.Tests
         [Fact]
         public void CreateCommitment_NotMember_ThrowsException()
         {
-            var dto = new CreateCommitmentDto { GroupId = 1, CreatedByUserId = 2, Title = "Test" };
+            var dto = new CreateCommitmentRequest { GroupId = 1, CreatedByUserId = 2, Title = "Test" };
             _membershipRepoMock.Setup(r => r.IsMember(1, 2)).Returns(false);
 
             var ex = Assert.Throws<Exception>(() => _commitmentService.CreateCommitment(dto));
@@ -96,7 +96,7 @@ namespace Agreely.Tests
         [Fact]
         public void UpdateCommitment_ValidDto_UpdatesCommitment()
         {
-            var dto = new UpdateCommitmentDto { CommitmentId = 1, Title = "Updated", Description = "New Desc" };
+            var dto = new UpdateCommitmentRequest { CommitmentId = 1, Title = "Updated", Description = "New Desc" };
             _commitmentRepoMock.Setup(r => r.GetCommitmentById(1)).Returns(new Commitment { CommitmentId = 1, Title = "Old" });
 
             _commitmentService.UpdateCommitment(dto);
@@ -108,7 +108,7 @@ namespace Agreely.Tests
         [Fact]
         public void UpdateCommitment_NotFound_ThrowsException()
         {
-            var dto = new UpdateCommitmentDto { CommitmentId = 99, Title = "Updated" };
+            var dto = new UpdateCommitmentRequest { CommitmentId = 99, Title = "Updated" };
             _commitmentRepoMock.Setup(r => r.GetCommitmentById(99)).Returns((Commitment?)null);
 
             var ex = Assert.Throws<Exception>(() => _commitmentService.UpdateCommitment(dto));

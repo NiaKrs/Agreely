@@ -1,6 +1,8 @@
-﻿using Microsoft.Data.SqlClient;
-using Agreely.Repositories.Models;
+﻿using Agreely.Domain;
+using Agreely.Repositories.Entities;
 using Agreely.Repositories.Interfaces;
+using Agreely.Repositories.Mappers;
+using Microsoft.Data.SqlClient;
 
 namespace Agreely.Repositories.Repositories
 {
@@ -17,9 +19,9 @@ namespace Agreely.Repositories.Repositories
         {
             using (SqlConnection connection = new SqlConnection(_connectionString))
             {
-                string query = @"INSERT INTO [Commitment] 
+                string query = @"INSERT INTO [Commitment]
                                 (GroupId, CreatedByUserId, Title, Description, CreatedAt, UpdatedAt)
-                                VALUES 
+                                VALUES
                                 (@GroupId, @CreatedByUserId, @Title, @Description, GETDATE(), GETDATE());
                                 SELECT SCOPE_IDENTITY();";
 
@@ -43,34 +45,69 @@ namespace Agreely.Repositories.Repositories
                                  FROM [Commitment]
                                  WHERE GroupId = @GroupId
                                  ORDER BY CreatedAt DESC";
+
                 SqlCommand command = new SqlCommand(query, connection);
                 command.Parameters.AddWithValue("@GroupId", groupId);
                 connection.Open();
+
                 SqlDataReader reader = command.ExecuteReader();
                 while (reader.Read())
                 {
-                    commitments.Add(new Commitment
+                    var entity = new CommitmentEntity
                     {
                         CommitmentId = Convert.ToInt32(reader["CommitmentId"]),
                         GroupId = Convert.ToInt32(reader["GroupId"]),
                         CreatedByUserId = Convert.ToInt32(reader["CreatedByUserId"]),
-                        Title = reader["Title"].ToString(),
+                        Title = reader["Title"].ToString()!,
                         Description = reader["Description"] == DBNull.Value ? null : reader["Description"].ToString(),
                         CreatedAt = Convert.ToDateTime(reader["CreatedAt"]),
                         UpdatedAt = Convert.ToDateTime(reader["UpdatedAt"])
-                    });
+                    };
+                    commitments.Add(CommitmentMapper.ToDomain(entity));
                 }
             }
             return commitments;
+        }
+
+        public Commitment? GetCommitmentById(int commitmentId)
+        {
+            using (SqlConnection connection = new SqlConnection(_connectionString))
+            {
+                string query = @"SELECT CommitmentId, GroupId, CreatedByUserId, Title, Description, CreatedAt, UpdatedAt
+                                 FROM [Commitment]
+                                 WHERE CommitmentId = @CommitmentId";
+
+                SqlCommand command = new SqlCommand(query, connection);
+                command.Parameters.AddWithValue("@CommitmentId", commitmentId);
+                connection.Open();
+
+                SqlDataReader reader = command.ExecuteReader();
+                if (reader.Read())
+                {
+                    var entity = new CommitmentEntity
+                    {
+                        CommitmentId = Convert.ToInt32(reader["CommitmentId"]),
+                        GroupId = Convert.ToInt32(reader["GroupId"]),
+                        CreatedByUserId = Convert.ToInt32(reader["CreatedByUserId"]),
+                        Title = reader["Title"].ToString()!,
+                        Description = reader["Description"] == DBNull.Value ? null : reader["Description"].ToString(),
+                        CreatedAt = Convert.ToDateTime(reader["CreatedAt"]),
+                        UpdatedAt = Convert.ToDateTime(reader["UpdatedAt"])
+                    };
+                    return CommitmentMapper.ToDomain(entity);
+                }
+            }
+            return null;
         }
 
         public void UpdateCommitment(Commitment commitment)
         {
             using (SqlConnection connection = new SqlConnection(_connectionString))
             {
-                string query = @"UPDATE [Commitment] 
+                string query = @"UPDATE [Commitment]
                                  SET Title = @Title, Description = @Description, UpdatedAt = GETDATE()
                                  WHERE CommitmentId = @CommitmentId";
+
                 SqlCommand command = new SqlCommand(query, connection);
                 command.Parameters.AddWithValue("@Title", commitment.Title);
                 command.Parameters.AddWithValue("@Description", (object?)commitment.Description ?? DBNull.Value);
@@ -90,34 +127,6 @@ namespace Agreely.Repositories.Repositories
                 connection.Open();
                 command.ExecuteNonQuery();
             }
-        }
-
-        public Commitment? GetCommitmentById(int commitmentId)
-        {
-            using (SqlConnection connection = new SqlConnection(_connectionString))
-            {
-                string query = @"SELECT CommitmentId, GroupId, CreatedByUserId, Title, Description, CreatedAt, UpdatedAt
-                                 FROM [Commitment]
-                                 WHERE CommitmentId = @CommitmentId";
-                SqlCommand command = new SqlCommand(query, connection);
-                command.Parameters.AddWithValue("@CommitmentId", commitmentId);
-                connection.Open();
-                SqlDataReader reader = command.ExecuteReader();
-                if (reader.Read())
-                {
-                    return new Commitment
-                    {
-                        CommitmentId = Convert.ToInt32(reader["CommitmentId"]),
-                        GroupId = Convert.ToInt32(reader["GroupId"]),
-                        CreatedByUserId = Convert.ToInt32(reader["CreatedByUserId"]),
-                        Title = reader["Title"].ToString(),
-                        Description = reader["Description"] == DBNull.Value ? null : reader["Description"].ToString(),
-                        CreatedAt = Convert.ToDateTime(reader["CreatedAt"]),
-                        UpdatedAt = Convert.ToDateTime(reader["UpdatedAt"])
-                    };
-                }
-            }
-            return null;
         }
     }
 }

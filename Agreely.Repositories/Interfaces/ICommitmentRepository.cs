@@ -1,4 +1,4 @@
-﻿using Agreely.Repositories.Models;
+﻿using Agreely.Domain;
 
 namespace Agreely.Repositories.Interfaces
 {

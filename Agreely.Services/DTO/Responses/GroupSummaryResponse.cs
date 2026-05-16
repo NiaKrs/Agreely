@@ -1,6 +1,6 @@
-﻿namespace Agreely.Services.DTO
+﻿namespace Agreely.Services.DTO.Responses
 {
-    public class GroupSummaryDto
+    public class GroupSummaryResponse
     {
         public int GroupId { get; set; }
         public string Name { get; set; } = string.Empty;

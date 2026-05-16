@@ -1,4 +1,4 @@
-﻿@model List<Agreely.Services.DTO.GroupSummaryDto>
+﻿@model Agreely.ViewModels.MyGroupsViewModel
 
 @{
     ViewData["Title"] = "My Groups";
@@ -12,7 +12,7 @@
     </div>
 </div>
 
-@if (Model.Count == 0)
+@if (Model.Groups.Count == 0)
 {
     <div class="text-center py-5">
         <p class="text-muted lead">You are not a member of any groups yet.</p>
@@ -23,7 +23,7 @@
 else
 {
     <div class="row">
-        @foreach (var group in Model)
+        @foreach (var group in Model.Groups)
         {
             <div class="col-md-4 mb-3">
                 <div class="card h-100">
