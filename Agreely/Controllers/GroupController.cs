@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Agreely.Controllers
 {
-    public class GroupController : Controller
+    public class GroupController : BaseController
     {
         private readonly IGroupService _groupService;
 
@@ -31,7 +31,7 @@ namespace Agreely.Controllers
                 {
                     Name = vm.Name,
                     Description = vm.Description,
-                    CreatedByUserId = 1 // hardcoded for now
+                    CreatedByUserId = GetSessionUserId()
                 };
                 _groupService.CreateGroup(request);
                 TempData["Success"] = "Group created successfully!";
@@ -60,7 +60,8 @@ namespace Agreely.Controllers
                 var request = new JoinGroupRequest
                 {
                     GroupId = vm.GroupId,
-                    UserId = 2 // hardcoded for now
+                    UserId = GetSessionUserId()
+
                 };
                 _groupService.JoinGroup(request);
                 TempData["Success"] = "Successfully joined the group!";
@@ -101,7 +102,7 @@ namespace Agreely.Controllers
         {
             try
             {
-                int userId = 1; // hardcoded for now
+                int userId = GetSessionUserId();
                 var groups = _groupService.GetUserGroups(userId);
                 var vm = new MyGroupsViewModel { Groups = groups };
                 return View(vm);
