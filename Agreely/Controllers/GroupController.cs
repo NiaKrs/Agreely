@@ -60,7 +60,7 @@ namespace Agreely.Controllers
                 var request = new JoinGroupRequest
                 {
                     GroupId = vm.GroupId,
-                    UserId = 1 // hardcoded for now
+                    UserId = 2 // hardcoded for now
                 };
                 _groupService.JoinGroup(request);
                 TempData["Success"] = "Successfully joined the group!";
