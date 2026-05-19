@@ -3,6 +3,7 @@ using Agreely.Services.DTO.Requests;
 using Agreely.Services.DTO.Responses;
 using Agreely.Domain;
 using Agreely.Services.Interfaces;
+using Agreely.Domain.Enums;
 
 namespace Agreely.Services.Services
 {
@@ -26,51 +27,68 @@ namespace Agreely.Services.Services
             {
                 GroupId = request.GroupId,
                 CreatedByUserId = request.CreatedByUserId,
-                Title = request.Title,
-                Description = request.Description
+                Status = CommitmentStatus.Active,
             };
 
-            return _commitmentRepo.CreateCommitment(commitment);
+            var version = new CommitmentVersion
+            {
+                CreatedByUserId = request.CreatedByUserId,
+                Title = request.Title,
+                Description = request.Description,
+                IsActive = true,
+                CreatedAt = DateTime.UtcNow
+            };
+
+            return _commitmentRepo.CreateCommitment(commitment, version);
         }
 
+        public int CreateCommitmentVersion(CreateCommitmentVersionRequest request)
+        {
+            var commitment = _commitmentRepo.GetCommitmentById(request.CommitmentId);
+            if (commitment == null)
+                throw new Exception("Commitment not found.");
+            var version = new CommitmentVersion
+            {
+                CommitmentId = request.CommitmentId,
+                Title = request.Title,
+                Description = request.Description,
+                CreatedAt = DateTime.UtcNow
+            };
+            return _commitmentRepo.CreateCommitmentVersion(version);
+        }
         public List<ViewCommitmentResponse> GetCommitmentsByGroupId(int groupId)
         {
             return _commitmentRepo.GetCommitmentsByGroupId(groupId)
-                .Select(c => new ViewCommitmentResponse
+                .Select(c =>
                 {
-                    CommitmentId = c.CommitmentId,
-                    GroupId = c.GroupId,
-                    Title = c.Title,
-                    Description = c.Description
+                    var version = _commitmentRepo.GetCurrentVersion(c.CommitmentId);
+                    return new ViewCommitmentResponse
+                    {
+                        CommitmentId = c.CommitmentId,
+                        Title = version?.Title ?? string.Empty,
+                        Description = version?.Description,
+                        Status = c.Status,
+                        CommitmentVersionId = version?.Id ?? 0
+                    };
                 }).ToList();
         }
-
 
         public ViewCommitmentResponse? GetCommitmentById(int commitmentId)
         {
             var commitment = _commitmentRepo.GetCommitmentById(commitmentId);
             if (commitment == null) return null;
 
+            var version = _commitmentRepo.GetCurrentVersion(commitmentId);
             return new ViewCommitmentResponse
             {
                 CommitmentId = commitment.CommitmentId,
-                GroupId = commitment.GroupId,
-                Title = commitment.Title,
-                Description = commitment.Description
+                Title = version?.Title ?? string.Empty,
+                Description = version?.Description,
+                Status = commitment.Status,
+                CommitmentVersionId = version?.Id ?? 0
             };
         }
 
-        public void UpdateCommitment(UpdateCommitmentRequest request)
-        {
-            var commitment = _commitmentRepo.GetCommitmentById(request.CommitmentId);
-            if (commitment == null)
-                throw new Exception("Commitment not found.");
-
-            commitment.Title = request.Title;
-            commitment.Description = request.Description;
-
-            _commitmentRepo.UpdateCommitment(commitment);
-        }
 
         public void DeleteCommitment(int commitmentId)
         {

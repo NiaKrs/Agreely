@@ -24,6 +24,9 @@ builder.Services.AddScoped<IGroupService, GroupService>();
 builder.Services.AddScoped<ICommitmentRepository, CommitmentRepository>(
     provider => new CommitmentRepository(connectionString));
 
+builder.Services.AddScoped<IAlignmentVoteRepository, AlignmentVoteRepository>(
+    provider => new AlignmentVoteRepository(connectionString));
+
 builder.Services.AddScoped<ICommitmentService, CommitmentService>();
 
 builder.Services.AddScoped<IUserRepository, UserRepository>(

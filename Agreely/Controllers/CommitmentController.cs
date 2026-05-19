@@ -46,7 +46,7 @@ namespace Agreely.Controllers
         }
 
         [HttpGet]
-        public IActionResult Edit(int id)
+        public IActionResult Edit(int id, int groupId)
         {
             try
             {
@@ -59,7 +59,7 @@ namespace Agreely.Controllers
                 var vm = new EditCommitmentViewModel
                 {
                     CommitmentId = response.CommitmentId,
-                    GroupId = response.GroupId,
+                    GroupId = groupId,
                     Title = response.Title,
                     Description = response.Description
                 };
@@ -79,14 +79,14 @@ namespace Agreely.Controllers
                 return View(vm);
             try
             {
-                var request = new UpdateCommitmentRequest
+                var request = new CreateCommitmentVersionRequest
                 {
                     CommitmentId = vm.CommitmentId,
-                    GroupId = vm.GroupId,
                     Title = vm.Title,
-                    Description = vm.Description
+                    Description = vm.Description,
+                    CreatedByUserId = GetSessionUserId()
                 };
-                _commitmentService.UpdateCommitment(request);
+                _commitmentService.CreateCommitmentVersion(request);
                 TempData["Success"] = "Commitment updated successfully!";
                 return RedirectToAction("Details", "Group", new { groupId = vm.GroupId });
             }
