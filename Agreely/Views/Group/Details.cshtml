@@ -29,7 +29,7 @@ else
                 <h5 class="card-title">@commitment.Title</h5>
                 <p class="card-text text-muted">@commitment.Description</p>
                 <div class="d-flex gap-2">
-                    <a asp-action="Edit" asp-controller="Commitment" asp-route-id="@commitment.CommitmentId" class="btn btn-sm btn-outline-dark">Edit</a>
+                    <a asp-action="Edit" asp-controller="Commitment" asp-route-id="@commitment.CommitmentId" asp-route-groupId="@Model.GroupId" class="btn btn-sm btn-outline-dark">Edit</a>
                     <form method="post" asp-action="Delete" asp-controller="Commitment">
                         <input type="hidden" name="id" value="@commitment.CommitmentId" />
                         <input type="hidden" name="groupId" value="@Model.GroupId" />

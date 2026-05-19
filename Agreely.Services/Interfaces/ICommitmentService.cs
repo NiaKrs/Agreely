@@ -6,9 +6,9 @@ namespace Agreely.Services.Interfaces
     public interface ICommitmentService
     {
         int CreateCommitment(CreateCommitmentRequest request);
+        int CreateCommitmentVersion(CreateCommitmentVersionRequest request);
         List<ViewCommitmentResponse> GetCommitmentsByGroupId(int groupId);
         ViewCommitmentResponse? GetCommitmentById(int commitmentId);
-        void UpdateCommitment(UpdateCommitmentRequest request);
         void DeleteCommitment(int commitmentId);
         
     }

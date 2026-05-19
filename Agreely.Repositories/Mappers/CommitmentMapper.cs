@@ -1,4 +1,5 @@
 ﻿using Agreely.Domain;
+using Agreely.Domain.Enums;
 using Agreely.Repositories.Entities;
 
 namespace Agreely.Repositories.Mappers
@@ -10,10 +11,8 @@ namespace Agreely.Repositories.Mappers
             CommitmentId = entity.CommitmentId,
             GroupId = entity.GroupId,
             CreatedByUserId = entity.CreatedByUserId,
-            Title = entity.Title,
-            Description = entity.Description,
             CreatedAt = entity.CreatedAt,
-            UpdatedAt = entity.UpdatedAt
+            Status = (CommitmentStatus)entity.Status
         };
     }
 }
