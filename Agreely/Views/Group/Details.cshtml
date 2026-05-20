@@ -28,7 +28,18 @@ else
             <div class="card-body">
                 <h5 class="card-title">@commitment.Title</h5>
                 <p class="card-text text-muted">@commitment.Description</p>
-                <div class="d-flex gap-2">
+
+                @if (commitment.UserVote.HasValue)
+                {
+                    <p class="mb-2">
+                        <small class="text-muted">
+                            Your vote:
+                            <strong>@commitment.UserVote.Value</strong>
+                        </small>
+                    </p>
+                }
+
+                <div class="d-flex gap-2 mt-2">
                     <a asp-action="Edit" asp-controller="Commitment" asp-route-id="@commitment.CommitmentId" asp-route-groupId="@Model.GroupId" class="btn btn-sm btn-outline-dark">Edit</a>
                     <form method="post" asp-action="Delete" asp-controller="Commitment">
                         <input type="hidden" name="id" value="@commitment.CommitmentId" />
@@ -36,6 +47,14 @@ else
                         <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
                     </form>
                 </div>
+
+                <form method="post" asp-action="Vote" asp-controller="Commitment" class="d-flex gap-2 mt-2">
+                    <input type="hidden" name="CommitmentVersionId" value="@commitment.CommitmentVersionId" />
+                    <input type="hidden" name="groupId" value="@Model.GroupId" />
+                    <button type="submit" name="Vote" value="2" class="btn btn-sm @(commitment.UserVote?.ToString() == "Agree" ? "btn-success" : "btn-outline-success")">Agree</button>
+                    <button type="submit" name="Vote" value="1" class="btn btn-sm @(commitment.UserVote?.ToString() == "Neutral" ? "btn-secondary" : "btn-outline-secondary")">Neutral</button>
+                    <button type="submit" name="Vote" value="0" class="btn btn-sm @(commitment.UserVote?.ToString() == "Disagree" ? "btn-danger" : "btn-outline-danger")">Disagree</button>
+                </form>
             </div>
         </div>
     }

@@ -2,7 +2,7 @@
 
 namespace Agreely.Repositories.Interfaces
 {
-    public interface IAlignmentVoteRepository
+    public interface IVoteRepository
     {
         void CastVote(AlignmentVote vote);
         AlignmentVote? GetVote(int commitmentVersionId, int userId);

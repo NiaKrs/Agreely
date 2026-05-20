@@ -8,10 +8,12 @@ namespace Agreely.Controllers
     public class GroupController : BaseController
     {
         private readonly IGroupService _groupService;
+        private readonly IVoteService _voteService;
 
-        public GroupController(IGroupService groupService)
+        public GroupController(IGroupService groupService, IVoteService voteService)
         {
             _groupService = groupService;
+            _voteService = voteService;
         }
 
         [HttpGet]
@@ -77,6 +79,7 @@ namespace Agreely.Controllers
         [HttpGet]
         public IActionResult Details(int groupId)
         {
+
             try
             {
                 var response = _groupService.GetGroupDetails(groupId);
@@ -88,6 +91,11 @@ namespace Agreely.Controllers
                     MemberCount = response.MemberCount,
                     Commitments = response.Commitments
                 };
+                var userId = GetSessionUserId();
+                foreach (var commitment in vm.Commitments)
+                {
+                    commitment.UserVote = _voteService.GetUserVote(commitment.CommitmentVersionId, userId);
+                }
                 return View(vm);
             }
             catch (Exception ex)
