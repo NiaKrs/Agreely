@@ -1,6 +1,7 @@
-﻿using Agreely.Repositories.Interfaces;
+﻿using Agreely.Domain;
+using Agreely.Repositories.Interfaces;
 using Agreely.Services.DTO.Requests;
-using Agreely.Domain;
+using Agreely.Services.Interfaces;
 using Agreely.Services.Services;
 using Moq;
 
@@ -10,6 +11,7 @@ namespace Agreely.Tests
     {
         private readonly Mock<ICommitmentRepository> _commitmentRepoMock;
         private readonly Mock<IGroupMembershipRepository> _membershipRepoMock;
+        private readonly Mock<IActivityLogService> _activityLogServiceMock;
         private readonly CommitmentService _commitmentService;
 
         public CommitmentServiceTests()
@@ -18,7 +20,8 @@ namespace Agreely.Tests
             _membershipRepoMock = new Mock<IGroupMembershipRepository>();
             _commitmentService = new CommitmentService(
                 _commitmentRepoMock.Object,
-                _membershipRepoMock.Object
+                _membershipRepoMock.Object,
+                _activityLogServiceMock.Object
             );
         }
 

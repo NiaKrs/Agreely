@@ -13,17 +13,20 @@ namespace Agreely.Services.Services
         private readonly IVoteRepository _voteRepo;
         private readonly ICommitmentRepository _commitmentRepo;
         private readonly IGroupRepository _groupRepo;
+        private readonly IActivityLogService _activityLogService;
 
-        public VoteService(IVoteRepository voteRepo, ICommitmentRepository commitmentRepo, IGroupRepository groupRepo)
+        public VoteService(IVoteRepository voteRepo, ICommitmentRepository commitmentRepo, IGroupRepository groupRepo, IActivityLogService activityLogService)
         {
             _voteRepo = voteRepo;
             _commitmentRepo = commitmentRepo;
             _groupRepo = groupRepo;
+            _activityLogService = activityLogService;
         }
 
         public void CastOrUpdateVote(CastVoteRequest request)
         {
             var vote = _voteRepo.GetVote(request.CommitmentVersionId, request.UserId);
+            var eventType = EventTypeValue.VoteCast;
             if (vote == null)
             {
                 _voteRepo.CastVote(new AlignmentVote
@@ -41,17 +44,25 @@ namespace Agreely.Services.Services
                     UserId = request.UserId,
                     Vote = request.Vote
                 });
+                eventType = EventTypeValue.VoteChanged;
             }
+
+            _activityLogService.LogEvent(request.GroupId, request.UserId, eventType, eventType == EventTypeValue.VoteCast ? $"Voted {request.Vote}" : $"Changed vote to {request.Vote}");
 
             var allVotes = _voteRepo.GetVotesByVersion(request.CommitmentVersionId);
             var agreeCount = allVotes.Count(v => v.Vote == VoteValue.Agree);
             var memberCount = _groupRepo.GetMemberCount(request.GroupId);
+
+            var previousStatus = _commitmentRepo.GetCommitmentById(request.CommitmentId)?.Status;
 
             var newStatus = (agreeCount == memberCount && memberCount > 0)
                 ? CommitmentStatus.Active
                 : CommitmentStatus.Pending;
 
             _commitmentRepo.UpdateCommitmentStatus(request.CommitmentId, newStatus);
+
+            if (previousStatus != newStatus)  
+                _activityLogService.LogEvent(request.GroupId, request.UserId, EventTypeValue.StatusChanged, $"Commitment status changed to {newStatus}");
         }
 
         public VoteValue? GetUserVote(int commitmentVersionId, int userId)

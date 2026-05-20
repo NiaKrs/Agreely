@@ -11,11 +11,13 @@ namespace Agreely.Services.Services
     {
         private readonly ICommitmentRepository _commitmentRepo;
         private readonly IGroupMembershipRepository _membershipRepo;
+        private readonly IActivityLogService _activityLogService;
 
-        public CommitmentService(ICommitmentRepository commitmentRepo, IGroupMembershipRepository membershipRepo)
+        public CommitmentService(ICommitmentRepository commitmentRepo, IGroupMembershipRepository membershipRepo, IActivityLogService activityLogService)
         {
             _commitmentRepo = commitmentRepo;
             _membershipRepo = membershipRepo;
+            _activityLogService = activityLogService;
         }
 
         public int CreateCommitment(CreateCommitmentRequest request)
@@ -36,9 +38,10 @@ namespace Agreely.Services.Services
                 Title = request.Title,
                 Description = request.Description,
                 IsActive = true,
-                CreatedAt = DateTime.UtcNow
+                CreatedAt = DateTime.Now
             };
 
+            _activityLogService.LogEvent(request.GroupId, request.CreatedByUserId, EventTypeValue.CommitmentCreated, $"Created commitment \"{request.Title}\"");
             return _commitmentRepo.CreateCommitment(commitment, version);
         }
 
@@ -56,10 +59,11 @@ namespace Agreely.Services.Services
                 Description = request.Description,
                 CreatedByUserId = request.CreatedByUserId,
                 IsActive = true,
-                CreatedAt = DateTime.UtcNow
+                CreatedAt = DateTime.Now
             };
 
             _commitmentRepo.UpdateCommitmentStatus(request.CommitmentId, CommitmentStatus.Pending);
+            _activityLogService.LogEvent(commitment.GroupId, request.CreatedByUserId, EventTypeValue.CommitmentRevised, $"Revised commitment to \"{request.Title}\"");
             return _commitmentRepo.CreateCommitmentVersion(version);
         }
         public List<ViewCommitmentResponse> GetCommitmentsByGroupId(int groupId)

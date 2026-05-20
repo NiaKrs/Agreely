@@ -10,6 +10,7 @@
     <a asp-action="Create" asp-controller="Commitment" asp-route-groupId="@Model.GroupId" class="btn btn-dark">
         + Add Commitment
     </a>
+    <a asp-action="ActivityLog" asp-route-groupId="@Model.GroupId" class="btn btn-outline-secondary">View Activity Log</a>
 </div>
 
 <p class="text-muted">@Model.Description</p>

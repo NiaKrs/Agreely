@@ -9,11 +9,13 @@ namespace Agreely.Controllers
     {
         private readonly IGroupService _groupService;
         private readonly IVoteService _voteService;
+        private readonly IActivityLogService _activityLogService;
 
-        public GroupController(IGroupService groupService, IVoteService voteService)
+        public GroupController(IGroupService groupService, IVoteService voteService, IActivityLogService activityLogService)
         {
             _groupService = groupService;
             _voteService = voteService;
+            _activityLogService = activityLogService;
         }
 
         [HttpGet]
@@ -121,6 +123,27 @@ namespace Agreely.Controllers
                 TempData["Error"] = ex.Message;
                 return RedirectToAction("Index", "Home");
             }
+        }
+
+        [HttpGet]
+        public IActionResult ActivityLog(int groupId)
+        {
+            var logs = _activityLogService.GetGroupLog(groupId);
+            var group = _groupService.GetGroupDetails(groupId);
+            var vm = new ActivityLogViewModel
+            {
+                GroupId = groupId,
+                GroupName = group.Name,
+                Logs = logs.Select(l => new ActivityLogItemViewModel
+                {
+                    EventType = l.EventType,
+                    OccuredAt = l.OccuredAt,
+                    UserFullName = l.UserFullName,
+                    Description = l.Description
+
+                }).ToList()
+            };
+            return View(vm);
         }
     }
 }
