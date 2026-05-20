@@ -6,11 +6,11 @@ using Microsoft.Data.SqlClient;
 
 namespace Agreely.Repositories.Repositories
 {
-    public class AlignmentVoteRepository : IAlignmentVoteRepository
+    public class VoteRepository : IVoteRepository
     {
         private readonly string _connectionString;
 
-        public AlignmentVoteRepository(string connectionString)
+        public VoteRepository(string connectionString)
         {
             _connectionString = connectionString;
         }

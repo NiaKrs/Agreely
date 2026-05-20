@@ -9,5 +9,7 @@ namespace Agreely.Services.DTO.Requests
         public VoteValue Vote { get; set; }
         public int UserId { get; set; }
         public int CommitmentVersionId { get; set; }
+        public int GroupId { get; set; }
+        public int CommitmentId { get; set; }
     }
 }

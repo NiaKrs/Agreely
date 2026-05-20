@@ -8,10 +8,12 @@ namespace Agreely.Controllers
     public class CommitmentController : BaseController
     {
         private readonly ICommitmentService _commitmentService;
+        private readonly IVoteService _voteService;
 
-        public CommitmentController(ICommitmentService commitmentService)
+        public CommitmentController(ICommitmentService commitmentService, IVoteService voteService)
         {
             _commitmentService = commitmentService;
+            _voteService = voteService;
         }
 
         [HttpGet]
@@ -104,6 +106,22 @@ namespace Agreely.Controllers
             {
                 _commitmentService.DeleteCommitment(id);
                 TempData["Success"] = "Commitment deleted successfully!";
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = ex.Message;
+            }
+            return RedirectToAction("Details", "Group", new { groupId });
+        }
+
+        [HttpPost]
+        public IActionResult Vote(CastVoteRequest request, int groupId)
+        {
+            try 
+            { 
+                request.UserId = GetSessionUserId();
+                _voteService.CastOrUpdateVote(request);
+                TempData["Success"] = "Vote cast successfully!";
             }
             catch (Exception ex)
             {

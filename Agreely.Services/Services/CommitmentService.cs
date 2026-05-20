@@ -27,7 +27,7 @@ namespace Agreely.Services.Services
             {
                 GroupId = request.GroupId,
                 CreatedByUserId = request.CreatedByUserId,
-                Status = CommitmentStatus.Active,
+                Status = CommitmentStatus.Pending,
             };
 
             var version = new CommitmentVersion
@@ -47,13 +47,19 @@ namespace Agreely.Services.Services
             var commitment = _commitmentRepo.GetCommitmentById(request.CommitmentId);
             if (commitment == null)
                 throw new Exception("Commitment not found.");
+
+            _commitmentRepo.DeactivatePreviousVersions(request.CommitmentId);
             var version = new CommitmentVersion
             {
                 CommitmentId = request.CommitmentId,
                 Title = request.Title,
                 Description = request.Description,
+                CreatedByUserId = request.CreatedByUserId,
+                IsActive = true,
                 CreatedAt = DateTime.UtcNow
             };
+
+            _commitmentRepo.UpdateCommitmentStatus(request.CommitmentId, CommitmentStatus.Pending);
             return _commitmentRepo.CreateCommitmentVersion(version);
         }
         public List<ViewCommitmentResponse> GetCommitmentsByGroupId(int groupId)
