@@ -47,7 +47,9 @@ namespace Agreely.Services.Services
                 eventType = EventTypeValue.VoteChanged;
             }
 
-            _activityLogService.LogEvent(request.GroupId, request.UserId, eventType, eventType == EventTypeValue.VoteCast ? $"Voted {request.Vote}" : $"Changed vote to {request.Vote}");
+            var commitmentVersion = _commitmentRepo.GetCurrentVersion(request.CommitmentId);
+            var title = commitmentVersion?.Title ?? "Unknown";
+            _activityLogService.LogEvent(request.GroupId, request.UserId, eventType, eventType == EventTypeValue.VoteCast ? $"Voted {request.Vote} on \"{title}\"" : $"Changed vote to {request.Vote}");
 
             var allVotes = _voteRepo.GetVotesByVersion(request.CommitmentVersionId);
             var agreeCount = allVotes.Count(v => v.Vote == VoteValue.Agree);
@@ -62,7 +64,7 @@ namespace Agreely.Services.Services
             _commitmentRepo.UpdateCommitmentStatus(request.CommitmentId, newStatus);
 
             if (previousStatus != newStatus)  
-                _activityLogService.LogEvent(request.GroupId, request.UserId, EventTypeValue.StatusChanged, $"Commitment status changed to {newStatus}");
+                _activityLogService.LogEvent(request.GroupId, request.UserId, EventTypeValue.StatusChanged, $"\"{title}\" status changed to {newStatus}");
         }
 
         public VoteValue? GetUserVote(int commitmentVersionId, int userId)
