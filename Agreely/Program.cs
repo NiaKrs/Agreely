@@ -28,12 +28,19 @@ builder.Services.AddScoped<IVoteRepository, VoteRepository>(
     provider => new VoteRepository(connectionString));
 
 builder.Services.AddScoped<ICommitmentService, CommitmentService>();
+
 builder.Services.AddScoped<IVoteService, VoteService>();
 
 builder.Services.AddScoped<IUserRepository, UserRepository>(
     provider => new UserRepository(connectionString));
 
 builder.Services.AddScoped<IAuthService, AuthService>();
+
+builder.Services.AddScoped<IActivityLogRepository, ActivityLogRepository>(
+    provider => new ActivityLogRepository(connectionString));
+
+builder.Services.AddScoped<IActivityLogService, ActivityLogService>();
+
 builder.Services.AddSession();
 var app = builder.Build();
 
