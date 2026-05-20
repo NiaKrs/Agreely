@@ -1,4 +1,5 @@
 ﻿using Agreely.Domain;
+using Agreely.Domain.Enums;
 using Agreely.Repositories.Entities;
 using Agreely.Repositories.Interfaces;
 using Agreely.Repositories.Mappers;
@@ -110,6 +111,21 @@ namespace Agreely.Repositories.Repositories
                                  SET IsActive = 0
                                  WHERE CommitmentId = @CommitmentId";
                 SqlCommand command = new SqlCommand(query, connection);
+                command.Parameters.AddWithValue("@CommitmentId", commitmentId);
+                connection.Open();
+                command.ExecuteNonQuery();
+            }
+        }
+
+        public void UpdateCommitmentStatus(int commitmentId, CommitmentStatus status)
+        {
+            using (SqlConnection connection = new SqlConnection(_connectionString))
+            {
+                string query = @"UPDATE [Commitment]
+                                 SET Status = @Status
+                                 WHERE CommitmentId = @CommitmentId";
+                SqlCommand command = new SqlCommand(query, connection);
+                command.Parameters.AddWithValue("@Status", (int)status);
                 command.Parameters.AddWithValue("@CommitmentId", commitmentId);
                 connection.Open();
                 command.ExecuteNonQuery();

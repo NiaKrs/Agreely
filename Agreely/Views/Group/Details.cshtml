@@ -1,4 +1,5 @@
-﻿@model Agreely.ViewModels.GroupDetailsViewModel
+﻿@using Agreely.Domain.Enums
+@model Agreely.ViewModels.GroupDetailsViewModel
 
 @{
     ViewData["Title"] = "Group Details";
@@ -26,7 +27,17 @@ else
     {
         <div class="card mb-3">
             <div class="card-body">
-                <h5 class="card-title">@commitment.Title</h5>
+                <h5 class="card-title">
+                    @if (commitment.Status == CommitmentStatus.Active)
+                    {
+                        <span class="text-success">Agreement</span>
+                    }
+                    else
+                    {
+                        <span>Commitment</span>
+                    }
+                    — @commitment.Title
+                </h5>
                 <p class="card-text text-muted">@commitment.Description</p>
 
                 @if (commitment.UserVote.HasValue)
@@ -51,10 +62,25 @@ else
                 <form method="post" asp-action="Vote" asp-controller="Commitment" class="d-flex gap-2 mt-2">
                     <input type="hidden" name="CommitmentVersionId" value="@commitment.CommitmentVersionId" />
                     <input type="hidden" name="groupId" value="@Model.GroupId" />
+                    <input type="hidden" name="CommitmentId" value="@commitment.CommitmentId" />
                     <button type="submit" name="Vote" value="2" class="btn btn-sm @(commitment.UserVote?.ToString() == "Agree" ? "btn-success" : "btn-outline-success")">Agree</button>
                     <button type="submit" name="Vote" value="1" class="btn btn-sm @(commitment.UserVote?.ToString() == "Neutral" ? "btn-secondary" : "btn-outline-secondary")">Neutral</button>
                     <button type="submit" name="Vote" value="0" class="btn btn-sm @(commitment.UserVote?.ToString() == "Disagree" ? "btn-danger" : "btn-outline-danger")">Disagree</button>
                 </form>
+
+                @if (commitment.Status == CommitmentStatus.Active)
+                {
+                    <span class="badge bg-success">Active Agreement</span>
+                }
+                else
+                {
+                    <span class="badge bg-warning text-dark">Pending Commitment</span>
+                }
+                <div class="d-flex gap-3 mt-2">
+                    <small class="text-success">@commitment.VoteCount.Agree Agree</small>
+                    <small class="text-secondary">@commitment.VoteCount.Neutral Neutral</small>
+                    <small class="text-danger">@commitment.VoteCount.Disagree Disagree</small>
+                </div>
             </div>
         </div>
     }

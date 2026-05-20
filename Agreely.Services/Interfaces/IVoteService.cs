@@ -10,5 +10,6 @@ namespace Agreely.Services.Interfaces
     {
         void CastOrUpdateVote(CastVoteRequest request);
         VoteValue? GetUserVote(int commitmentVersionId, int userId);
+        VoteCountResponse GetVoteCounts(int commitmentVersionId);
     }
 }

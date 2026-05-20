@@ -95,6 +95,7 @@ namespace Agreely.Controllers
                 foreach (var commitment in vm.Commitments)
                 {
                     commitment.UserVote = _voteService.GetUserVote(commitment.CommitmentVersionId, userId);
+                    commitment.VoteCount = _voteService.GetVoteCounts(commitment.CommitmentVersionId);
                 }
                 return View(vm);
             }
