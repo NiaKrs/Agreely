@@ -1,0 +1,42 @@
+﻿@model Agreely.ViewModels.MyGroupsViewModel
+
+@{
+    ViewData["Title"] = "My Groups";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="mb-0">My Groups</h2>
+    <div class="d-flex gap-2">
+        <a asp-controller="Group" asp-action="Create" class="btn btn-dark">+ Create Group</a>
+        <a asp-controller="Group" asp-action="Join" class="btn btn-outline-dark">Join Group</a>
+    </div>
+</div>
+
+@if (Model.Groups.Count == 0)
+{
+    <div class="text-center py-5">
+        <p class="text-muted lead">You are not a member of any groups yet.</p>
+        <a asp-controller="Group" asp-action="Join" class="btn btn-dark me-2">Join a Group</a>
+        <a asp-controller="Group" asp-action="Create" class="btn btn-outline-dark">Create a Group</a>
+    </div>
+}
+else
+{
+    <div class="row">
+        @foreach (var group in Model.Groups)
+        {
+            <div class="col-md-4 mb-3">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">@group.Name</h5>
+                        <p class="card-text text-muted">@group.Description</p>
+                    </div>
+                    <div class="card-footer bg-transparent">
+                        <a asp-controller="Group" asp-action="Details" asp-route-groupId="@group.GroupId"
+                           class="btn btn-sm btn-dark w-100">View Details</a>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}

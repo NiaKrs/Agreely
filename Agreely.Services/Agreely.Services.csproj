@@ -6,4 +6,13 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="BCrypt.Net-Next" Version="4.2.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Agreely.Repositories\Agreely.Repositories.csproj" />
+    <ProjectReference Include="..\Domain\Agreely.Domain.csproj" />
+  </ItemGroup>
+
 </Project>
