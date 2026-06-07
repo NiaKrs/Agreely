@@ -21,6 +21,9 @@ namespace Agreely.Services.Services
 
         public int CreateGroup(CreateGroupRequest request)
         {
+            if (string.IsNullOrWhiteSpace(request.Name))
+                throw new Exception("Group name is required.");
+
             var group = new Group
             {
                 Name = request.Name,

@@ -131,5 +131,23 @@ namespace Agreely.UnitTests
             var ex = Assert.Throws<Exception>(() => _commitmentService.DeleteCommitment(99));
             Assert.Equal("Commitment not found.", ex.Message);
         }
+
+        [Fact]
+        public void CreateCommitment_EmptyTitle_ThrowsException()
+        {
+            var request = new CreateCommitmentRequest { GroupId = 1, CreatedByUserId = 1, Title = "" };
+
+            var ex = Assert.Throws<Exception>(() => _commitmentService.CreateCommitment(request));
+            Assert.Equal("Commitment title is required.", ex.Message);
+        }
+
+        [Fact]
+        public void CreateCommitmentVersion_EmptyTitle_ThrowsException()
+        {
+            var request = new CreateCommitmentVersionRequest { CommitmentId = 1, Title = "", CreatedByUserId = 1 };
+
+            var ex = Assert.Throws<Exception>(() => _commitmentService.CreateCommitmentVersion(request));
+            Assert.Equal("Commitment title is required.", ex.Message);
+        }
     }
 }
