@@ -4,6 +4,7 @@ using Agreely.Services.DTO.Responses;
 using Agreely.Domain;
 using Agreely.Services.Interfaces;
 using Agreely.Domain.Enums;
+using System.Transactions;
 
 namespace Agreely.Services.Services
 {
@@ -44,8 +45,24 @@ namespace Agreely.Services.Services
                 CreatedAt = DateTime.Now
             };
 
+            int commitmentId;
+            try
+            {
+                using (var scope = new TransactionScope())
+                {
+                    commitmentId = _commitmentRepo.InsertCommitment(commitment);
+                    version.CommitmentId = commitmentId;
+                    _commitmentRepo.CreateCommitmentVersion(version);
+                    scope.Complete();
+                }
+            }
+            catch (Exception)
+            {
+                throw new Exception("Failed to create commitment. All changes have been rolled back.");
+            }
+
             _activityLogService.LogEvent(request.GroupId, request.CreatedByUserId, EventTypeValue.CommitmentCreated, $"Created commitment \"{request.Title}\"");
-            return _commitmentRepo.CreateCommitment(commitment, version);
+            return commitmentId;
         }
 
         public int CreateCommitmentVersion(CreateCommitmentVersionRequest request)
@@ -57,7 +74,6 @@ namespace Agreely.Services.Services
             if (commitment == null)
                 throw new Exception("Commitment not found.");
 
-            _commitmentRepo.DeactivatePreviousVersions(request.CommitmentId);
             var version = new CommitmentVersion
             {
                 CommitmentId = request.CommitmentId,
@@ -68,10 +84,26 @@ namespace Agreely.Services.Services
                 CreatedAt = DateTime.Now
             };
 
-            _commitmentRepo.UpdateCommitmentStatus(request.CommitmentId, CommitmentStatus.Pending);
+            int newVersionId;
+            try
+            {
+                using (var scope = new TransactionScope())
+                {
+                    _commitmentRepo.DeactivatePreviousVersions(request.CommitmentId);
+                    _commitmentRepo.UpdateCommitmentStatus(request.CommitmentId, CommitmentStatus.Pending);
+                    newVersionId = _commitmentRepo.CreateCommitmentVersion(version);
+                    scope.Complete();
+                }
+            }
+            catch (Exception)
+            {
+                throw new Exception("Failed to update commitment. All changes have been rolled back.");
+            }
+
             _activityLogService.LogEvent(commitment.GroupId, request.CreatedByUserId, EventTypeValue.CommitmentRevised, $"Revised commitment to \"{request.Title}\"");
-            return _commitmentRepo.CreateCommitmentVersion(version);
+            return newVersionId;
         }
+
         public List<ViewCommitmentResponse> GetCommitmentsByGroupId(int groupId)
         {
             return _commitmentRepo.GetCommitmentsByGroupId(groupId)
@@ -105,14 +137,26 @@ namespace Agreely.Services.Services
             };
         }
 
-
         public void DeleteCommitment(int commitmentId)
         {
             var commitment = _commitmentRepo.GetCommitmentById(commitmentId);
             if (commitment == null)
                 throw new Exception("Commitment not found.");
 
-            _commitmentRepo.DeleteCommitment(commitmentId);
+            try
+            {
+                using (var scope = new TransactionScope())
+                {
+                    _commitmentRepo.DeleteVotesByCommitmentId(commitmentId);
+                    _commitmentRepo.DeleteVersionsByCommitmentId(commitmentId);
+                    _commitmentRepo.DeleteCommitment(commitmentId);
+                    scope.Complete();
+                }
+            }
+            catch (Exception)
+            {
+                throw new Exception("Failed to delete commitment. All changes have been rolled back.");
+            }
         }
     }
 }

@@ -32,7 +32,8 @@ namespace Agreely.UnitTests
         {
             var request = new CreateCommitmentRequest { GroupId = 1, CreatedByUserId = 1, Title = "Test", Description = "Desc" };
             _membershipRepoMock.Setup(r => r.IsMember(1, 1)).Returns(true);
-            _commitmentRepoMock.Setup(r => r.CreateCommitment(It.IsAny<Commitment>(), It.IsAny<CommitmentVersion>())).Returns(10);
+            _commitmentRepoMock.Setup(r => r.InsertCommitment(It.IsAny<Commitment>())).Returns(10);
+            _commitmentRepoMock.Setup(r => r.CreateCommitmentVersion(It.IsAny<CommitmentVersion>())).Returns(1);
 
             var result = _commitmentService.CreateCommitment(request);
 
@@ -120,8 +121,11 @@ namespace Agreely.UnitTests
 
             _commitmentService.DeleteCommitment(1);
 
+            _commitmentRepoMock.Verify(r => r.DeleteVotesByCommitmentId(1), Times.Once);
+            _commitmentRepoMock.Verify(r => r.DeleteVersionsByCommitmentId(1), Times.Once);
             _commitmentRepoMock.Verify(r => r.DeleteCommitment(1), Times.Once);
         }
+        
 
         [Fact]
         public void DeleteCommitment_NonExistingId_ThrowsException()
