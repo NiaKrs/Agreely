@@ -118,5 +118,14 @@ namespace Agreely.UnitTests
 
             Assert.False(result);
         }
+
+        [Fact]
+        public void CreateGroup_EmptyName_ThrowsException()
+        {
+            var request = new CreateGroupRequest { Name = "", CreatedByUserId = 1 };
+
+            var ex = Assert.Throws<Exception>(() => _groupService.CreateGroup(request));
+            Assert.Equal("Group name is required.", ex.Message);
+        }
     }
 }

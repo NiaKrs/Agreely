@@ -22,6 +22,9 @@ namespace Agreely.Services.Services
 
         public int CreateCommitment(CreateCommitmentRequest request)
         {
+            if (string.IsNullOrWhiteSpace(request.Title))
+                throw new Exception("Commitment title is required.");
+
             if (!_membershipRepo.IsMember(request.GroupId, request.CreatedByUserId))
                 throw new Exception("You must be a member of the group to create a commitment.");
 
@@ -47,6 +50,9 @@ namespace Agreely.Services.Services
 
         public int CreateCommitmentVersion(CreateCommitmentVersionRequest request)
         {
+            if (string.IsNullOrWhiteSpace(request.Title))
+                throw new Exception("Commitment title is required.");
+
             var commitment = _commitmentRepo.GetCommitmentById(request.CommitmentId);
             if (commitment == null)
                 throw new Exception("Commitment not found.");

@@ -16,6 +16,15 @@ namespace Agreely.Services.Services
 
         public int RegisterUser(RegisterRequest request)
         {
+            if (string.IsNullOrWhiteSpace(request.FullName))
+                throw new Exception("Full name is required.");
+
+            if (string.IsNullOrWhiteSpace(request.Email) || !request.Email.Contains("@"))
+                throw new Exception("A valid email address is required.");
+
+            if (string.IsNullOrWhiteSpace(request.Password))
+                throw new Exception("Password is required.");
+
             var existingUser = _userRepo.GetUserByEmail(request.Email);
             if (existingUser != null)
                 throw new Exception("An account with this email already exists.");
