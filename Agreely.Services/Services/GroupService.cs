@@ -89,5 +89,10 @@ namespace Agreely.Services.Services
                 Description = g.Description
             }).ToList();
         }
+
+        public bool IsUserMember(int groupId, int userId)
+        {
+            return _membershipRepo.IsMember(groupId, userId);
+        }
     }
 }

@@ -9,5 +9,6 @@ namespace Agreely.Services.Interfaces
         void JoinGroup(JoinGroupRequest request);
         GroupDetailsResponse GetGroupDetails(int groupId);
         List<GroupSummaryResponse> GetUserGroups(int userId);
+        bool IsUserMember(int groupId, int userId);
     }
 }

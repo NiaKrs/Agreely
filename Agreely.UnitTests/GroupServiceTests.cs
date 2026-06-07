@@ -108,5 +108,15 @@ namespace Agreely.UnitTests
 
             Assert.Equal(2, result.Count);
         }
+
+        [Fact]
+        public void IsUserMember_UserNotMember_ReturnsFalse()
+        {
+            _membershipRepoMock.Setup(r => r.IsMember(1, 99)).Returns(false);
+
+            var result = _groupService.IsUserMember(1, 99);
+
+            Assert.False(result);
+        }
     }
 }

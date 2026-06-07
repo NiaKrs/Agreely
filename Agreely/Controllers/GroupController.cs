@@ -81,6 +81,12 @@ namespace Agreely.Controllers
         [HttpGet]
         public IActionResult Details(int groupId)
         {
+            int userId = GetSessionUserId();
+            if (!_groupService.IsUserMember(groupId, userId))
+            {
+                TempData["Error"] = "You are not a member of this group.";
+                return RedirectToAction("MyGroups");
+            }
 
             try
             {
@@ -93,7 +99,7 @@ namespace Agreely.Controllers
                     MemberCount = response.MemberCount,
                     Commitments = response.Commitments
                 };
-                var userId = GetSessionUserId();
+            
                 foreach (var commitment in vm.Commitments)
                 {
                     commitment.UserVote = _voteService.GetUserVote(commitment.CommitmentVersionId, userId);
@@ -128,6 +134,12 @@ namespace Agreely.Controllers
         [HttpGet]
         public IActionResult ActivityLog(int groupId)
         {
+            int userId = GetSessionUserId();
+            if (!_groupService.IsUserMember(groupId, userId))
+            {
+                TempData["Error"] = "You are not a member of this group.";
+                return RedirectToAction("MyGroups");
+            }
             var logs = _activityLogService.GetGroupLog(groupId);
             var group = _groupService.GetGroupDetails(groupId);
             var vm = new ActivityLogViewModel
