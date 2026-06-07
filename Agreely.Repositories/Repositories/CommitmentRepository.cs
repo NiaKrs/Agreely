@@ -16,41 +16,26 @@ namespace Agreely.Repositories.Repositories
             _connectionString = connectionString;
         }
 
-        public int CreateCommitment(Commitment commitment, CommitmentVersion commitmentVersion)
+        public int InsertCommitment(Commitment commitment)
         {
             using (SqlConnection connection = new SqlConnection(_connectionString))
             {
                 string query = @"INSERT INTO [Commitment]
-                                (GroupId, CreatedByUserId, CreatedAt, Status)
-                                VALUES
-                                (@GroupId, @CreatedByUserId, GETDATE(), @Status);
-                                SELECT SCOPE_IDENTITY();";
+                        (GroupId, CreatedByUserId, CreatedAt, Status)
+                        VALUES
+                        (@GroupId, @CreatedByUserId, GETDATE(), @Status);
+                        SELECT SCOPE_IDENTITY();";
 
                 SqlCommand command = new SqlCommand(query, connection);
                 command.Parameters.AddWithValue("@GroupId", commitment.GroupId);
                 command.Parameters.AddWithValue("@CreatedByUserId", commitment.CreatedByUserId);
                 command.Parameters.AddWithValue("@Status", commitment.Status);
-
                 connection.Open();
-                int commitmentId = Convert.ToInt32(command.ExecuteScalar());
-
-                string query1 = @"INSERT INTO [CommitmentVersion]
-                                (CommitmentId, CreatedByUserId, Title, Description, CreatedAt, IsActive)
-                                VALUES
-                                (@CommitmentId, @CreatedByUserId, @Title, @Description, GETDATE(), @IsActive);
-                                SELECT SCOPE_IDENTITY();";
-
-                SqlCommand versionCommand = new SqlCommand(query1, connection);
-                versionCommand.Parameters.AddWithValue("@CommitmentId", commitmentId);
-                versionCommand.Parameters.AddWithValue("@CreatedByUserId", commitmentVersion.CreatedByUserId);
-                versionCommand.Parameters.AddWithValue("@Title", commitmentVersion.Title);
-                versionCommand.Parameters.AddWithValue("@Description", (object?)commitmentVersion.Description ?? DBNull.Value);
-                versionCommand.Parameters.AddWithValue("@IsActive", commitmentVersion.IsActive);
-
-                versionCommand.ExecuteNonQuery();
-                return commitmentId;
+                return Convert.ToInt32(command.ExecuteScalar());
             }
         }
+
+        
 
         public int CreateCommitmentVersion(CommitmentVersion version)
         {
@@ -192,29 +177,42 @@ namespace Agreely.Repositories.Repositories
             return null;
         }
 
+        public void DeleteVotesByCommitmentId(int commitmentId)
+        {
+            using (SqlConnection connection = new SqlConnection(_connectionString))
+            {
+                string query = @"DELETE FROM [AlignmentVote]
+                         WHERE CommitmentVersionId IN (
+                             SELECT Id FROM [CommitmentVersion] WHERE CommitmentId = @CommitmentId
+                         )";
+                SqlCommand command = new SqlCommand(query, connection);
+                command.Parameters.AddWithValue("@CommitmentId", commitmentId);
+                connection.Open();
+                command.ExecuteNonQuery();
+            }
+        }
+
+        public void DeleteVersionsByCommitmentId(int commitmentId)
+        {
+            using (SqlConnection connection = new SqlConnection(_connectionString))
+            {
+                string query = @"DELETE FROM [CommitmentVersion] WHERE CommitmentId = @CommitmentId";
+                SqlCommand command = new SqlCommand(query, connection);
+                command.Parameters.AddWithValue("@CommitmentId", commitmentId);
+                connection.Open();
+                command.ExecuteNonQuery();
+            }
+        }
+
         public void DeleteCommitment(int commitmentId)
         {
             using (SqlConnection connection = new SqlConnection(_connectionString))
             {
+                string query = @"DELETE FROM [Commitment] WHERE CommitmentId = @CommitmentId";
+                SqlCommand command = new SqlCommand(query, connection);
+                command.Parameters.AddWithValue("@CommitmentId", commitmentId);
                 connection.Open();
-
-                string deleteVotes = @"DELETE FROM [AlignmentVote]
-                               WHERE CommitmentVersionId IN (
-                                   SELECT Id FROM [CommitmentVersion] WHERE CommitmentId = @CommitmentId
-                               )";
-                SqlCommand deleteVotesCmd = new SqlCommand(deleteVotes, connection);
-                deleteVotesCmd.Parameters.AddWithValue("@CommitmentId", commitmentId);
-                deleteVotesCmd.ExecuteNonQuery();
-
-                string deleteVersions = @"DELETE FROM [CommitmentVersion] WHERE CommitmentId = @CommitmentId";
-                SqlCommand deleteVersionsCmd = new SqlCommand(deleteVersions, connection);
-                deleteVersionsCmd.Parameters.AddWithValue("@CommitmentId", commitmentId);
-                deleteVersionsCmd.ExecuteNonQuery();
-
-                string deleteCommitment = @"DELETE FROM [Commitment] WHERE CommitmentId = @CommitmentId";
-                SqlCommand deleteCommitmentCmd = new SqlCommand(deleteCommitment, connection);
-                deleteCommitmentCmd.Parameters.AddWithValue("@CommitmentId", commitmentId);
-                deleteCommitmentCmd.ExecuteNonQuery();
+                command.ExecuteNonQuery();
             }
         }
     }

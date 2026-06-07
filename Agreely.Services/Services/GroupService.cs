@@ -1,8 +1,9 @@
-﻿using Agreely.Repositories.Interfaces;
+﻿using System.Transactions;
+using Agreely.Domain;
+using Agreely.Repositories.Interfaces;
 using Agreely.Services.DTO.Requests;
 using Agreely.Services.DTO.Responses;
 using Agreely.Services.Interfaces;
-using Agreely.Domain;
 
 namespace Agreely.Services.Services
 {
@@ -31,15 +32,24 @@ namespace Agreely.Services.Services
                 CreatedByUserId = request.CreatedByUserId
             };
 
-            int groupId = _groupRepo.CreateGroup(group);
-
-            var membership = new GroupMembership
+            int groupId;
+            try
             {
-                GroupId = groupId,
-                UserId = request.CreatedByUserId
-            };
-
-            _membershipRepo.AddMember(membership);
+                using (var scope = new TransactionScope())
+                {
+                    groupId = _groupRepo.CreateGroup(group);
+                    _membershipRepo.AddMember(new GroupMembership
+                    {
+                        GroupId = groupId,
+                        UserId = request.CreatedByUserId
+                    });
+                    scope.Complete();
+                }
+            }
+            catch (Exception)
+            {
+                throw new Exception("Failed to create group. All changes have been rolled back.");
+            }
 
             return groupId;
         }
