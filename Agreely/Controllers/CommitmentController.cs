@@ -9,16 +9,23 @@ namespace Agreely.Controllers
     {
         private readonly ICommitmentService _commitmentService;
         private readonly IVoteService _voteService;
+        private readonly IGroupService _groupService;
 
-        public CommitmentController(ICommitmentService commitmentService, IVoteService voteService)
+        public CommitmentController(ICommitmentService commitmentService, IVoteService voteService, IGroupService groupService)
         {
             _commitmentService = commitmentService;
             _voteService = voteService;
+            _groupService = groupService;
         }
 
         [HttpGet]
         public IActionResult Create(int groupId)
         {
+            if (!_groupService.IsUserMember(groupId, GetSessionUserId()))
+            {
+                TempData["Error"] = "You are not a member of this group.";
+                return RedirectToAction("MyGroups", "Group");
+            }
             return View(new CreateCommitmentViewModel { GroupId = groupId });
         }
 
@@ -50,6 +57,11 @@ namespace Agreely.Controllers
         [HttpGet]
         public IActionResult Edit(int id, int groupId)
         {
+            if (!_groupService.IsUserMember(groupId, GetSessionUserId()))
+            {
+                TempData["Error"] = "You are not a member of this group.";
+                return RedirectToAction("MyGroups", "Group");
+            }
             try
             {
                 var response = _commitmentService.GetCommitmentById(id);
@@ -102,6 +114,11 @@ namespace Agreely.Controllers
         [HttpPost]
         public IActionResult Delete(int id, int groupId)
         {
+            if (!_groupService.IsUserMember(groupId, GetSessionUserId()))
+            {
+                TempData["Error"] = "You are not a member of this group.";
+                return RedirectToAction("MyGroups", "Group");
+            }
             try
             {
                 _commitmentService.DeleteCommitment(id);
@@ -117,6 +134,11 @@ namespace Agreely.Controllers
         [HttpPost]
         public IActionResult Vote(CastVoteRequest request, int groupId)
         {
+            if (!_groupService.IsUserMember(groupId, GetSessionUserId()))
+            {
+                TempData["Error"] = "You are not a member of this group.";
+                return RedirectToAction("MyGroups", "Group");
+            }
             try 
             { 
                 request.UserId = GetSessionUserId();
