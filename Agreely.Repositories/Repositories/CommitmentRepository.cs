@@ -196,11 +196,25 @@ namespace Agreely.Repositories.Repositories
         {
             using (SqlConnection connection = new SqlConnection(_connectionString))
             {
-                string query = @"DELETE FROM [Commitment] WHERE CommitmentId = @CommitmentId";
-                SqlCommand command = new SqlCommand(query, connection);
-                command.Parameters.AddWithValue("@CommitmentId", commitmentId);
                 connection.Open();
-                command.ExecuteNonQuery();
+
+                string deleteVotes = @"DELETE FROM [AlignmentVote]
+                               WHERE CommitmentVersionId IN (
+                                   SELECT Id FROM [CommitmentVersion] WHERE CommitmentId = @CommitmentId
+                               )";
+                SqlCommand deleteVotesCmd = new SqlCommand(deleteVotes, connection);
+                deleteVotesCmd.Parameters.AddWithValue("@CommitmentId", commitmentId);
+                deleteVotesCmd.ExecuteNonQuery();
+
+                string deleteVersions = @"DELETE FROM [CommitmentVersion] WHERE CommitmentId = @CommitmentId";
+                SqlCommand deleteVersionsCmd = new SqlCommand(deleteVersions, connection);
+                deleteVersionsCmd.Parameters.AddWithValue("@CommitmentId", commitmentId);
+                deleteVersionsCmd.ExecuteNonQuery();
+
+                string deleteCommitment = @"DELETE FROM [Commitment] WHERE CommitmentId = @CommitmentId";
+                SqlCommand deleteCommitmentCmd = new SqlCommand(deleteCommitment, connection);
+                deleteCommitmentCmd.Parameters.AddWithValue("@CommitmentId", commitmentId);
+                deleteCommitmentCmd.ExecuteNonQuery();
             }
         }
     }
