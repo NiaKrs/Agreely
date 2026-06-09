@@ -1,10 +1,12 @@
 ﻿using Agreely.Services.DTO.Requests;
 using Agreely.Services.Interfaces;
 using Agreely.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Agreely.Controllers
 {
+    [Authorize]
     public class CommitmentController : BaseController
     {
         private readonly ICommitmentService _commitmentService;

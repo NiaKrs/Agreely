@@ -2,6 +2,7 @@ using Agreely.Repositories.Interfaces;
 using Agreely.Repositories.Repositories;
 using Agreely.Services.Interfaces;
 using Agreely.Services.Services;
+using Microsoft.AspNetCore.Authentication.Cookies;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -41,7 +42,15 @@ builder.Services.AddScoped<IActivityLogRepository, ActivityLogRepository>(
 
 builder.Services.AddScoped<IActivityLogService, ActivityLogService>();
 
-builder.Services.AddSession();
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie(options =>
+    {
+        options.LoginPath = "/Auth/Login";
+        options.LogoutPath = "/Auth/Logout";
+        options.ExpireTimeSpan = TimeSpan.FromHours(1);
+        options.SlidingExpiration = true;
+    });
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -57,7 +66,7 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
-app.UseSession();
+app.UseAuthentication();
 app.UseAuthorization();
 
 

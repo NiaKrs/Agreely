@@ -1,11 +1,15 @@
 ﻿using Agreely.Services.DTO.Requests;
 using Agreely.Services.Interfaces;
-using Agreely.Services.Services;
 using Agreely.ViewModels;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace Agreely.Controllers
 {
+    [AllowAnonymous]
     public class AuthController : BaseController
     {
         private readonly IAuthService _authService;
@@ -52,7 +56,7 @@ namespace Agreely.Controllers
         }
 
         [HttpPost]
-        public IActionResult Login(LoginViewModel vm)
+        public async Task<IActionResult> Login(LoginViewModel vm)
         {
             if (!ModelState.IsValid)
                 return View(vm);
@@ -69,15 +73,25 @@ namespace Agreely.Controllers
                 return View(vm);
             }
 
-            HttpContext.Session.SetInt32("UserId", user.UserId);
-            HttpContext.Session.SetString("FullName", user.FullName);
-            return RedirectToAction("Index", "Home");
+            var claims = new List<Claim>
+            {
+                new Claim(ClaimTypes.NameIdentifier, user.UserId.ToString()),
+                new Claim(ClaimTypes.Name, user.FullName),
+                new Claim(ClaimTypes.Email, user.Email)
+            };
+
+            var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+            var principal = new ClaimsPrincipal(identity);
+
+            await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
+
+            return RedirectToAction("MyGroups", "Group");
         }
 
         [HttpPost]
-        public IActionResult Logout()
+        public async Task<IActionResult> Logout()
         {
-            HttpContext.Session.Clear();
+            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
             return RedirectToAction("Login");
         }
     }
