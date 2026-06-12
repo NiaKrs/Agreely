@@ -13,12 +13,14 @@ namespace Agreely.Services.Services
         private readonly ICommitmentRepository _commitmentRepo;
         private readonly IGroupMembershipRepository _membershipRepo;
         private readonly IActivityLogService _activityLogService;
+        private readonly HealthStatusEvaluator _healthStatusEvaluator;
 
-        public CommitmentService(ICommitmentRepository commitmentRepo, IGroupMembershipRepository membershipRepo, IActivityLogService activityLogService)
+        public CommitmentService(ICommitmentRepository commitmentRepo, IGroupMembershipRepository membershipRepo, IActivityLogService activityLogService, HealthStatusEvaluator healthStatusEvaluator)
         {
             _commitmentRepo = commitmentRepo;
             _membershipRepo = membershipRepo;
             _activityLogService = activityLogService;
+            _healthStatusEvaluator = healthStatusEvaluator;
         }
 
         public int CreateCommitment(CreateCommitmentRequest request)
@@ -116,7 +118,10 @@ namespace Agreely.Services.Services
                         Title = version?.Title ?? string.Empty,
                         Description = version?.Description,
                         Status = c.Status,
-                        CommitmentVersionId = version?.Id ?? 0
+                        CommitmentVersionId = version?.Id ?? 0,
+                        HealthStatus = version != null
+                            ? _healthStatusEvaluator.Evaluate(c.Status, version.CreatedAt)
+                            : HealthStatusValue.Healthy
                     };
                 }).ToList();
         }
@@ -133,7 +138,10 @@ namespace Agreely.Services.Services
                 Title = version?.Title ?? string.Empty,
                 Description = version?.Description,
                 Status = commitment.Status,
-                CommitmentVersionId = version?.Id ?? 0
+                CommitmentVersionId = version?.Id ?? 0,
+                HealthStatus = version != null
+                            ? _healthStatusEvaluator.Evaluate(commitment.Status, version.CreatedAt)
+                            : HealthStatusValue.Healthy
             };
         }
 

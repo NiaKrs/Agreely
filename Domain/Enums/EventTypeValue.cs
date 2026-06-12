@@ -8,6 +8,7 @@ namespace Agreely.Domain.Enums
         CommitmentRevised = 1,
         VoteCast = 2,
         VoteChanged = 3,
-        StatusChanged = 4
+        StatusChanged = 4,
+        ReviewRequested = 5
     }
 }

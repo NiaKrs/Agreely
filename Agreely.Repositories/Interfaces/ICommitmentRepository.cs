@@ -15,5 +15,7 @@ namespace Agreely.Repositories.Interfaces
         void DeleteVotesByCommitmentId(int commitmentId);
         void DeleteVersionsByCommitmentId(int commitmentId);
         void DeleteCommitment(int commitmentId);
+        void DeleteNotificationsByCommitmentId(int commitmentId);
+        List<Commitment> GetAllCommitments();
     }
 }

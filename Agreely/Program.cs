@@ -1,5 +1,6 @@
 using Agreely.Repositories.Interfaces;
 using Agreely.Repositories.Repositories;
+using Agreely.Services;
 using Agreely.Services.Interfaces;
 using Agreely.Services.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -41,6 +42,8 @@ builder.Services.AddScoped<IActivityLogRepository, ActivityLogRepository>(
     provider => new ActivityLogRepository(connectionString));
 
 builder.Services.AddScoped<IActivityLogService, ActivityLogService>();
+
+builder.Services.AddScoped<HealthStatusEvaluator>();
 
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>

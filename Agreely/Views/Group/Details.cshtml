@@ -39,6 +39,21 @@ else
                     }
                     — @commitment.Title
                 </h5>
+
+                @if (commitment.HealthStatus == HealthStatusValue.NeedsAttention)
+                {
+                    <span class="badge bg-warning text-dark mb-2">⚠ Needs Attention</span>
+                }
+                else if (commitment.HealthStatus == HealthStatusValue.DueForReview)
+                {
+                    <span class="badge bg-info text-dark mb-2">🔄 Due for Review</span>
+                }
+                else
+                {
+                    <span class="badge bg-success mb-2">✅ Healthy</span>
+                }
+
+
                 <p class="card-text text-muted">@commitment.Description</p>
 
                 @if (commitment.UserVote.HasValue)
