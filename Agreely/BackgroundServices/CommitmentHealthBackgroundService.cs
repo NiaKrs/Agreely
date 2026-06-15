@@ -10,7 +10,7 @@ namespace Agreely.BackgroundServices
     public class CommitmentHealthBackgroundService : BackgroundService
     {
         private readonly IServiceScopeFactory _scopeFactory;
-        private readonly TimeSpan _interval = TimeSpan.FromHours(1);
+        private readonly TimeSpan _interval = TimeSpan.FromMinutes(1);
 
         public CommitmentHealthBackgroundService(IServiceScopeFactory scopeFactory)
         {

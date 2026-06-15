@@ -10,26 +10,32 @@ namespace Agreely.Services.Services
     {
         private readonly INotificationRepository _notificationRepo;
         private readonly IGroupMembershipRepository _membershipRepo;
+        private readonly IGroupRepository _groupRepo;
 
         public NotificationService(
             INotificationRepository notificationRepo,
-            IGroupMembershipRepository membershipRepo)
+            IGroupMembershipRepository membershipRepo,
+            IGroupRepository groupRepo)
         {
             _notificationRepo = notificationRepo;
             _membershipRepo = membershipRepo;
+            _groupRepo = groupRepo;
         }
         public void CreateNotificationsForCommitment(int commitmentId, int groupId, HealthStatusValue healthStatus, string commitmentTitle)
         {
             if (healthStatus == HealthStatusValue.Healthy)
-                return; 
+                return;
+
+            var groupName = _groupRepo.GetGroupNameById(groupId) ?? $"Group {groupId}";
+            string prefix = $"[Group: {groupName}]";
 
             string message = healthStatus switch
             {
                 HealthStatusValue.NeedsAttention =>
-                    $"Commitment \"{commitmentTitle}\" has been pending for too long and needs attention.",
+                    $"{prefix} . Commitment \"{commitmentTitle}\" has been pending for too long and needs attention.",
 
                 HealthStatusValue.DueForReview =>
-                    $"Commitment \"{commitmentTitle}\" is active and due for review.",
+                    $"{prefix} . Commitment \"{commitmentTitle}\" is active and due for review.",
 
                 _ => throw new Exception($"Unsupported HealthStatus value: {healthStatus}")
             };
@@ -77,5 +83,23 @@ namespace Agreely.Services.Services
         {
             _notificationRepo.MarkAsRead(notificationId);
         }
+
+        public NotificationResponse? GetByIdForUser(int notificationId, int userId)
+        {
+            var n = _notificationRepo.GetNotificationByIdForUser(notificationId, userId);
+            if (n == null) return null;
+
+            return new NotificationResponse
+            {
+                NotificationId = n.NotificationId,
+                CommitmentId = n.CommitmentId,
+                GroupId = n.GroupId,
+                HealthStatus = n.HealthStatus,
+                Message = n.Message,
+                IsRead = n.IsRead,
+                CreatedAt = n.CreatedAt
+            };
+        }
+
     }
 }

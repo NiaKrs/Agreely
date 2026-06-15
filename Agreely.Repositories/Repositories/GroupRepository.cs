@@ -111,7 +111,20 @@ namespace Agreely.Repositories.Repositories
             }
 
             return groups;
-        } 
+        }
 
+        public string? GetGroupNameById(int groupId)
+        {
+            using (SqlConnection connection = new SqlConnection(_connectionString))
+            { 
+                string query = @"SELECT Name FROM [Group] WHERE GroupId = @GroupId";
+                SqlCommand command = new SqlCommand(query, connection);
+                command.Parameters.AddWithValue("@GroupId", groupId);
+
+                connection.Open();
+                var result = command.ExecuteScalar();
+                return result == null || result == DBNull.Value ? null : result.ToString();
+            }
+        }
     }
 }

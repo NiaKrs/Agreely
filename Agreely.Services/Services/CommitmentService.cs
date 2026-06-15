@@ -166,5 +166,34 @@ namespace Agreely.Services.Services
                 throw new Exception("Failed to delete commitment. All changes have been rolled back.");
             }
         }
+
+        public void RequestReview(int commitmentId, int requestedByUserId)
+        {
+            var commitment = _commitmentRepo.GetCommitmentById(commitmentId);
+            if (commitment == null)
+                throw new Exception("Commitment not found.");
+
+            var version = _commitmentRepo.GetCurrentVersion(commitmentId);
+            if (version == null)
+                throw new Exception("No active version found for this commitment.");
+
+            try
+            {
+                using (var scope = new TransactionScope())
+                {
+                    _commitmentRepo.DeleteVotesByCommitmentId(commitmentId);
+                    _commitmentRepo.UpdateCommitmentStatus(commitmentId, CommitmentStatus.Pending);
+                    scope.Complete();
+                }
+            }
+            catch (Exception)
+            {
+                throw new Exception("Failed to request review. All changes have been rolled back.");
+            }
+
+            _activityLogService.LogEvent(commitment.GroupId, requestedByUserId,
+                EventTypeValue.ReviewRequested,
+                $"Requested review of commitment \"{version.Title}\"");
+        }
     }
 }

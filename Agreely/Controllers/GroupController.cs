@@ -3,6 +3,8 @@ using Agreely.Services.Interfaces;
 using Agreely.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Agreely.Domain.Enums;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 
 namespace Agreely.Controllers
 {
@@ -107,6 +109,11 @@ namespace Agreely.Controllers
                     commitment.UserVote = _voteService.GetUserVote(commitment.CommitmentVersionId, userId);
                     commitment.VoteCount = _voteService.GetVoteCounts(commitment.CommitmentVersionId);
                 }
+
+                vm.HealthyCount = vm.Commitments.Count(c => c.HealthStatus == HealthStatusValue.Healthy);
+                vm.NeedsAttentionCount = vm.Commitments.Count(c => c.HealthStatus == HealthStatusValue.NeedsAttention);
+                vm.DueForReviewCount = vm.Commitments.Count(c => c.HealthStatus == HealthStatusValue.DueForReview);
+
                 return View(vm);
             }
             catch (Exception ex)

@@ -11,5 +11,6 @@ namespace Agreely.Repositories.Interfaces
         void MarkAsRead(int notificationId);
         int GetUnreadCount(int userId);
         bool NotificationExists(int userId, int commitmentId, HealthStatusValue healthStatus);
+        Notification? GetNotificationByIdForUser(int notificationId, int userId);
     }
 }

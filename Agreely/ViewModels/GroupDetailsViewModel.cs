@@ -10,5 +10,8 @@ namespace Agreely.ViewModels
         public string? Description { get; set; }
         public int MemberCount { get; set; }
         public List<ViewCommitmentResponse> Commitments { get; set; } = new();
+        public int HealthyCount { get; set; }
+        public int NeedsAttentionCount { get; set; }
+        public int DueForReviewCount { get; set; }
     }
 }

@@ -18,6 +18,30 @@
 
 <hr />
 
+@if (Model.Commitments.Count > 0)
+{
+    <div class="row g-3 mb-4">
+        <div class="col-auto">
+            <div class="border rounded px-3 py-2 text-center">
+                <div class="fs-4 fw-bold text-success">@Model.HealthyCount</div>
+                <div class="small text-muted">Healthy</div>
+            </div>
+        </div>
+        <div class="col-auto">
+            <div class="border rounded px-3 py-2 text-center">
+                <div class="fs-4 fw-bold text-warning">@Model.NeedsAttentionCount</div>
+                <div class="small text-muted">Needs Attention</div>
+            </div>
+        </div>
+        <div class="col-auto">
+            <div class="border rounded px-3 py-2 text-center">
+                <div class="fs-4 fw-bold text-info">@Model.DueForReviewCount</div>
+                <div class="small text-muted">Due for Review</div>
+            </div>
+        </div>
+    </div>
+}
+
 @if (Model.Commitments.Count == 0)
 {
     <p class="text-muted">No commitments yet. Add one above!</p>
@@ -26,8 +50,9 @@ else
 {
     foreach (var commitment in Model.Commitments)
     {
-        <div class="card mb-3">
+        <div class="card mb-3" id="commitment-@commitment.CommitmentId">
             <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start mb-2">
                 <h5 class="card-title">
                     @if (commitment.Status == CommitmentStatus.Active)
                     {
@@ -38,20 +63,22 @@ else
                         <span>Commitment</span>
                     }
                     — @commitment.Title
+
                 </h5>
 
                 @if (commitment.HealthStatus == HealthStatusValue.NeedsAttention)
                 {
-                    <span class="badge bg-warning text-dark mb-2">⚠ Needs Attention</span>
+                    <span class="badge bg-warning text-dark mb-2">Needs Attention</span>
                 }
                 else if (commitment.HealthStatus == HealthStatusValue.DueForReview)
                 {
-                    <span class="badge bg-info text-dark mb-2">🔄 Due for Review</span>
+                    <span class="badge bg-info text-dark mb-2">Due for Review</span>
                 }
                 else
                 {
-                    <span class="badge bg-success mb-2">✅ Healthy</span>
+                    <span class="badge bg-success mb-2">Healthy</span>
                 }
+				</div>
 
 
                 <p class="card-text text-muted">@commitment.Description</p>
@@ -73,6 +100,14 @@ else
                         <input type="hidden" name="groupId" value="@Model.GroupId" />
                         <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
                     </form>
+                    @if (commitment.HealthStatus == HealthStatusValue.DueForReview)
+                    {
+                        <form method="post" asp-action="RequestReview" asp-controller="Commitment">
+                            <input type="hidden" name="commitmentId" value="@commitment.CommitmentId" />
+                            <input type="hidden" name="groupId" value="@Model.GroupId" />
+                            <button type="submit" class="btn btn-sm btn-outline-info">Request Review</button>
+                        </form>
+                    }
                 </div>
 
                 <form method="post" asp-action="Vote" asp-controller="Commitment" class="d-flex gap-2 mt-2">

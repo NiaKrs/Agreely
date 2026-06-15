@@ -10,5 +10,6 @@ namespace Agreely.Services.Interfaces
         List<NotificationResponse> GetNotificationsForUser(int userId);
         int GetUnreadCount(int userId);
         void MarkAsRead(int notificationId);
+        NotificationResponse? GetByIdForUser(int notificationId, int userId);
     }
 }

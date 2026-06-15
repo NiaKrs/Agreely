@@ -8,5 +8,6 @@ namespace Agreely.Repositories.Interfaces
         Group? GetGroupById(int groupId);
         int GetMemberCount(int groupId);
         List<Group> GetGroupsByUserId(int userId);
+        string? GetGroupNameById(int groupId);
     }
 }

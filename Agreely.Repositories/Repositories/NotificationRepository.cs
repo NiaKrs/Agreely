@@ -94,5 +94,40 @@ namespace Agreely.Repositories.Repositories
             connection.Open();
             return Convert.ToInt32(command.ExecuteScalar()) > 0;
         }
+
+        public Notification? GetNotificationByIdForUser(int notificationId, int userId)
+        {
+            using (SqlConnection connection = new SqlConnection(_connectionString))
+            {
+                string query = @"SELECT NotificationId, UserId, GroupId, CommitmentId, HealthStatus, Message, IsRead, CreatedAt
+                         FROM [Notification]
+                         WHERE NotificationId = @NotificationId AND UserId = @UserId";
+
+                SqlCommand command = new SqlCommand(query, connection);
+                command.Parameters.AddWithValue("@NotificationId", notificationId);
+                command.Parameters.AddWithValue("@UserId", userId);
+
+                connection.Open();
+                SqlDataReader reader = command.ExecuteReader();
+
+                if (reader.Read())
+                {
+                    var entity = new NotificationEntity
+                    {
+                        NotificationId = Convert.ToInt32(reader["NotificationId"]),
+                        UserId = Convert.ToInt32(reader["UserId"]),
+                        GroupId = Convert.ToInt32(reader["GroupId"]),
+                        CommitmentId = Convert.ToInt32(reader["CommitmentId"]),
+                        HealthStatus = Convert.ToInt32(reader["HealthStatus"]),
+                        Message = reader["Message"].ToString()!,
+                        IsRead = Convert.ToBoolean(reader["IsRead"]),
+                        CreatedAt = Convert.ToDateTime(reader["CreatedAt"])
+                    };
+                    return NotificationMapper.ToDomain(entity);
+                }
+
+                return null;
+            }
+        }
     }
 }
