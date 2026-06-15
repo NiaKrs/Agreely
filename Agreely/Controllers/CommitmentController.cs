@@ -153,5 +153,22 @@ namespace Agreely.Controllers
             }
             return RedirectToAction("Details", "Group", new { groupId });
         }
+
+        [HttpPost]
+        public IActionResult RequestReview(int commitmentId, int groupId)
+        {
+            if (!_groupService.IsUserMember(groupId, GetSessionUserId()))
+            {
+                TempData["Error"] = "You are not a member of this group.";
+                return RedirectToAction("MyGroups", "Group");
+            }
+            try
+            {
+                _commitmentService.RequestReview(commitmentId, GetSessionUserId());
+                TempData["Success"] = "Review requested. All members can now re-vote.";
+            }
+            catch (Exception ex) { TempData["Error"] = ex.Message; }
+            return RedirectToAction("Details", "Group", new { groupId });
+        }
     }
 }

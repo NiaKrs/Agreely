@@ -44,5 +44,21 @@ namespace Agreely.Repositories.Repositories
                 return Convert.ToInt32(command.ExecuteScalar()) > 0;
             }
         }
+
+        public List<int> GetMembersByGroupId(int groupId)
+        {
+            var memberIds = new List<int>();
+            using (SqlConnection connection = new SqlConnection(_connectionString))
+            {
+                string query = @"SELECT UserId FROM [GroupMembership] WHERE GroupId = @GroupId";
+                SqlCommand command = new SqlCommand(query, connection);
+                command.Parameters.AddWithValue("@GroupId", groupId);
+                connection.Open();
+                using SqlDataReader reader = command.ExecuteReader();
+                while (reader.Read())
+                    memberIds.Add(Convert.ToInt32(reader["UserId"]));
+            }
+            return memberIds;
+        }
     }
 }

@@ -12,5 +12,6 @@ namespace Agreely.Services.DTO.Responses
         public CommitmentStatus Status { get; set; }
         public VoteValue? UserVote { get; set; }
         public VoteCountResponse VoteCount { get; set; } = new();
+        public HealthStatusValue HealthStatus { get; set; }
     }
 }

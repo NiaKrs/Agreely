@@ -4,6 +4,8 @@ using Agreely.Repositories.Interfaces;
 using Agreely.Services.DTO.Requests;
 using Agreely.Services.Interfaces;
 using Agreely.Services.Services;
+using Agreely.Services;
+using Microsoft.Extensions.Configuration;
 using Moq;
 
 namespace Agreely.UnitTests
@@ -13,6 +15,7 @@ namespace Agreely.UnitTests
         private readonly Mock<ICommitmentRepository> _commitmentRepoMock;
         private readonly Mock<IGroupMembershipRepository> _membershipRepoMock;
         private readonly Mock<IActivityLogService> _activityLogServiceMock;
+        private readonly Mock<HealthStatusEvaluator> _healthStatusEvaluatorMock;
         private readonly CommitmentService _commitmentService;
 
         public CommitmentServiceTests()
@@ -20,10 +23,12 @@ namespace Agreely.UnitTests
             _commitmentRepoMock = new Mock<ICommitmentRepository>();
             _membershipRepoMock = new Mock<IGroupMembershipRepository>();
             _activityLogServiceMock = new Mock<IActivityLogService>();
+            _healthStatusEvaluatorMock = new Mock<HealthStatusEvaluator>(new Mock<IConfiguration>().Object);
             _commitmentService = new CommitmentService(
                 _commitmentRepoMock.Object,
                 _membershipRepoMock.Object,
-                _activityLogServiceMock.Object
+                _activityLogServiceMock.Object,
+                _healthStatusEvaluatorMock.Object
             );
         }
 

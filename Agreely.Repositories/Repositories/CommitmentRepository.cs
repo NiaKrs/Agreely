@@ -215,5 +215,43 @@ namespace Agreely.Repositories.Repositories
                 command.ExecuteNonQuery();
             }
         }
+
+        public void DeleteNotificationsByCommitmentId(int commitmentId)
+        {
+            using (SqlConnection connection = new SqlConnection(_connectionString))
+            {
+                string query = @"DELETE FROM [Notification] WHERE CommitmentId = @CommitmentId";
+                SqlCommand command = new SqlCommand(query, connection);
+                command.Parameters.AddWithValue("@CommitmentId", commitmentId);
+                connection.Open();
+                command.ExecuteNonQuery();
+            }
+        }
+
+        public List<Commitment> GetAllCommitments()
+        {
+            var commitments = new List<Commitment>();
+            using (SqlConnection connection = new SqlConnection(_connectionString))
+            {
+                string query = @"SELECT CommitmentId, GroupId, CreatedByUserId, CreatedAt, Status
+                                 FROM [Commitment]";
+                SqlCommand command = new SqlCommand(query, connection);
+                connection.Open();
+                SqlDataReader reader = command.ExecuteReader();
+                while (reader.Read())
+                {
+                    var entity = new CommitmentEntity
+                    {
+                        CommitmentId = Convert.ToInt32(reader["CommitmentId"]),
+                        GroupId = Convert.ToInt32(reader["GroupId"]),
+                        CreatedByUserId = Convert.ToInt32(reader["CreatedByUserId"]),
+                        CreatedAt = Convert.ToDateTime(reader["CreatedAt"]),
+                        Status = (int)reader["Status"]
+                    };
+                    commitments.Add(CommitmentMapper.ToDomain(entity));
+                }
+            }
+            return commitments;
+        }
     }
 }
