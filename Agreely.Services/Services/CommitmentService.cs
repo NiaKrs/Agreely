@@ -156,6 +156,7 @@ namespace Agreely.Services.Services
                 using (var scope = new TransactionScope())
                 {
                     _commitmentRepo.DeleteVotesByCommitmentId(commitmentId);
+                    _commitmentRepo.DeleteNotificationsByCommitmentId(commitmentId);
                     _commitmentRepo.DeleteVersionsByCommitmentId(commitmentId);
                     _commitmentRepo.DeleteCommitment(commitmentId);
                     scope.Complete();

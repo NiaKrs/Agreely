@@ -15,7 +15,7 @@ namespace Agreely.UnitTests
         private readonly Mock<ICommitmentRepository> _commitmentRepoMock;
         private readonly Mock<IGroupMembershipRepository> _membershipRepoMock;
         private readonly Mock<IActivityLogService> _activityLogServiceMock;
-        private readonly Mock<HealthStatusEvaluator> _healthStatusEvaluatorMock;
+        private readonly HealthStatusEvaluator _healthStatusEvaluator;
         private readonly CommitmentService _commitmentService;
 
         public CommitmentServiceTests()
@@ -23,12 +23,21 @@ namespace Agreely.UnitTests
             _commitmentRepoMock = new Mock<ICommitmentRepository>();
             _membershipRepoMock = new Mock<IGroupMembershipRepository>();
             _activityLogServiceMock = new Mock<IActivityLogService>();
-            _healthStatusEvaluatorMock = new Mock<HealthStatusEvaluator>(new Mock<IConfiguration>().Object);
+
+            var config = new ConfigurationBuilder()
+                .AddInMemoryCollection(new Dictionary<string, string?>
+                {
+            { "CommitmentHealth:PendingStaleAfterDays", "7" },
+            { "CommitmentHealth:ReviewDueAfterDays", "30" }
+                })
+                .Build();
+            _healthStatusEvaluator = new HealthStatusEvaluator(config);
+
             _commitmentService = new CommitmentService(
                 _commitmentRepoMock.Object,
                 _membershipRepoMock.Object,
                 _activityLogServiceMock.Object,
-                _healthStatusEvaluatorMock.Object
+                _healthStatusEvaluator
             );
         }
 
@@ -120,17 +129,19 @@ namespace Agreely.UnitTests
         }
 
         [Fact]
-        public void DeleteCommitment_ExistingId_CallsRepositoryDelete()
+        public void DeleteCommitment_ExistingId_CallsAllDeleteStepsInOrder()
         {
             _commitmentRepoMock.Setup(r => r.GetCommitmentById(1)).Returns(new Commitment { CommitmentId = 1 });
 
             _commitmentService.DeleteCommitment(1);
 
             _commitmentRepoMock.Verify(r => r.DeleteVotesByCommitmentId(1), Times.Once);
+            _commitmentRepoMock.Verify(r => r.DeleteNotificationsByCommitmentId(1), Times.Once);
             _commitmentRepoMock.Verify(r => r.DeleteVersionsByCommitmentId(1), Times.Once);
             _commitmentRepoMock.Verify(r => r.DeleteCommitment(1), Times.Once);
         }
-        
+
+
 
         [Fact]
         public void DeleteCommitment_NonExistingId_ThrowsException()
@@ -157,6 +168,137 @@ namespace Agreely.UnitTests
 
             var ex = Assert.Throws<Exception>(() => _commitmentService.CreateCommitmentVersion(request));
             Assert.Equal("Commitment title is required.", ex.Message);
+        }
+
+        [Fact]
+        public void GetCommitmentsByGroupId_VersionMissing_ReturnsHealthyAsDefault()
+        {
+            _commitmentRepoMock.Setup(r => r.GetCommitmentsByGroupId(1)).Returns(new List<Commitment>
+            {
+                new Commitment { CommitmentId = 1, Status = CommitmentStatus.Pending }
+            });
+            // No active version found
+            _commitmentRepoMock.Setup(r => r.GetCurrentVersion(1)).Returns((CommitmentVersion?)null);
+
+            var result = _commitmentService.GetCommitmentsByGroupId(1);
+
+            Assert.Equal(HealthStatusValue.Healthy, result[0].HealthStatus);
+        }
+
+        [Fact]
+        public void GetCommitmentById_PendingAndStale_ReturnsNeedsAttention()
+        {
+            _commitmentRepoMock.Setup(r => r.GetCommitmentById(1)).Returns(new Commitment
+            {
+                CommitmentId = 1,
+                Status = CommitmentStatus.Pending
+            });
+            _commitmentRepoMock.Setup(r => r.GetCurrentVersion(1)).Returns(new CommitmentVersion
+            {
+                Title = "Test",
+                IsActive = true,
+                // 8 days old — over the 7-day pending threshold
+                CreatedAt = DateTime.Now.AddDays(-8)
+            });
+
+            var result = _commitmentService.GetCommitmentById(1);
+
+            Assert.Equal(HealthStatusValue.NeedsAttention, result!.HealthStatus);
+        }
+
+        [Fact]
+        public void GetCommitmentById_ActiveAndOld_ReturnsDueForReview()
+        {
+            _commitmentRepoMock.Setup(r => r.GetCommitmentById(1)).Returns(new Commitment
+            {
+                CommitmentId = 1,
+                Status = CommitmentStatus.Active
+            });
+            _commitmentRepoMock.Setup(r => r.GetCurrentVersion(1)).Returns(new CommitmentVersion
+            {
+                Title = "Test",
+                IsActive = true,
+                // 31 days old — over the 30-day review threshold
+                CreatedAt = DateTime.Now.AddDays(-31)
+            });
+
+            var result = _commitmentService.GetCommitmentById(1);
+
+            Assert.Equal(HealthStatusValue.DueForReview, result!.HealthStatus);
+        }
+
+        [Fact]
+        public void GetCommitmentById_PendingAndFresh_ReturnsHealthy()
+        {
+            _commitmentRepoMock.Setup(r => r.GetCommitmentById(1)).Returns(new Commitment
+            {
+                CommitmentId = 1,
+                Status = CommitmentStatus.Pending
+            });
+            _commitmentRepoMock.Setup(r => r.GetCurrentVersion(1)).Returns(new CommitmentVersion
+            {
+                Title = "Test",
+                IsActive = true,
+                // 2 days old — within threshold
+                CreatedAt = DateTime.Now.AddDays(-2)
+            });
+
+            var result = _commitmentService.GetCommitmentById(1);
+
+            Assert.Equal(HealthStatusValue.Healthy, result!.HealthStatus);
+        }
+
+        [Fact]
+        public void GetCommitmentById_ActiveAndFresh_ReturnsHealthy()
+        {
+            _commitmentRepoMock.Setup(r => r.GetCommitmentById(1)).Returns(new Commitment
+            {
+                CommitmentId = 1,
+                Status = CommitmentStatus.Active
+            });
+            _commitmentRepoMock.Setup(r => r.GetCurrentVersion(1)).Returns(new CommitmentVersion
+            {
+                Title = "Test",
+                IsActive = true,
+                // 10 days old — within 30-day review threshold
+                CreatedAt = DateTime.Now.AddDays(-10)
+            });
+
+            var result = _commitmentService.GetCommitmentById(1);
+
+            Assert.Equal(HealthStatusValue.Healthy, result!.HealthStatus);
+        }
+
+        [Fact]
+        public void RequestReview_ValidCommitment_DeletesVotesAndSetsPending()
+        {
+            _commitmentRepoMock.Setup(r => r.GetCommitmentById(1)).Returns(new Commitment { CommitmentId = 1, GroupId = 1 });
+            _commitmentRepoMock.Setup(r => r.GetCurrentVersion(1)).Returns(new CommitmentVersion { Id = 1, Title = "Test", IsActive = true });
+
+            _commitmentService.RequestReview(1, 2);
+
+            _commitmentRepoMock.Verify(r => r.DeleteVotesByCommitmentId(1), Times.Once);
+            _commitmentRepoMock.Verify(r => r.UpdateCommitmentStatus(1, CommitmentStatus.Pending), Times.Once);
+            _activityLogServiceMock.Verify(a => a.LogEvent(1, 2, EventTypeValue.ReviewRequested, It.IsAny<string>()), Times.Once);
+        }
+
+        [Fact]
+        public void RequestReview_CommitmentNotFound_ThrowsException()
+        {
+            _commitmentRepoMock.Setup(r => r.GetCommitmentById(99)).Returns((Commitment?)null);
+
+            var ex = Assert.Throws<Exception>(() => _commitmentService.RequestReview(99, 1));
+            Assert.Equal("Commitment not found.", ex.Message);
+        }
+
+        [Fact]
+        public void RequestReview_NoActiveVersion_ThrowsException()
+        {
+            _commitmentRepoMock.Setup(r => r.GetCommitmentById(1)).Returns(new Commitment { CommitmentId = 1 });
+            _commitmentRepoMock.Setup(r => r.GetCurrentVersion(1)).Returns((CommitmentVersion?)null);
+
+            var ex = Assert.Throws<Exception>(() => _commitmentService.RequestReview(1, 1));
+            Assert.Equal("No active version found for this commitment.", ex.Message);
         }
     }
 }
