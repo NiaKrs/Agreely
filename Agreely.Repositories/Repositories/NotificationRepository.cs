@@ -3,10 +3,12 @@ using Agreely.Domain.Enums;
 using Agreely.Repositories.Entities;
 using Agreely.Repositories.Mappers;
 using Microsoft.Data.SqlClient;
+using Agreely.Repositories.Interfaces;
+
 
 namespace Agreely.Repositories.Repositories
 {
-    public class NotificationRepository
+    public class NotificationRepository : INotificationRepository
     {
         private readonly string _connectionString;
 

@@ -8,7 +8,7 @@ namespace Agreely.Repositories.Interfaces
     {
         int CreateNotification(Notification notification);
         List<Notification> GetNotificationsByUserId(int userId);
-        bool MarkAsRead(int notificationId);
+        void MarkAsRead(int notificationId);
         int GetUnreadCount(int userId);
         bool NotificationExists(int userId, int commitmentId, HealthStatusValue healthStatus);
     }
