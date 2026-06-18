@@ -13,5 +13,6 @@ namespace Agreely.Services.DTO.Responses
         public VoteValue? UserVote { get; set; }
         public VoteCountResponse VoteCount { get; set; } = new();
         public HealthStatusValue HealthStatus { get; set; }
+        public DateTime CreatedAt { get; set; }
     }
 }

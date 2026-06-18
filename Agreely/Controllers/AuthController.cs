@@ -39,7 +39,7 @@ namespace Agreely.Controllers
                     Password = vm.Password
                 };
                 _authService.RegisterUser(request);
-                TempData["Success"] = "You registrated successfully!";
+                TempData["Success"] = "You registered successfully!";
                 return RedirectToAction("Login");
             }
             catch (Exception ex)

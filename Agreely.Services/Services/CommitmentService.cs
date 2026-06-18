@@ -121,7 +121,8 @@ namespace Agreely.Services.Services
                         CommitmentVersionId = version?.Id ?? 0,
                         HealthStatus = version != null
                             ? _healthStatusEvaluator.Evaluate(c.Status, version.CreatedAt)
-                            : HealthStatusValue.Healthy
+                            : HealthStatusValue.Healthy,
+                        CreatedAt = version?.CreatedAt ?? DateTime.MinValue
                     };
                 }).ToList();
         }

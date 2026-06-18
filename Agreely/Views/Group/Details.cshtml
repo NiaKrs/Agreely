@@ -81,6 +81,7 @@ else
 				</div>
 
 
+
                 <p class="card-text text-muted">@commitment.Description</p>
 
                 @if (commitment.UserVote.HasValue)
@@ -127,10 +128,16 @@ else
                 {
                     <span class="badge bg-warning text-dark">Pending Commitment</span>
                 }
-                <div class="d-flex gap-3 mt-2">
-                    <small class="text-success">@commitment.VoteCount.Agree Agree</small>
-                    <small class="text-secondary">@commitment.VoteCount.Neutral Neutral</small>
-                    <small class="text-danger">@commitment.VoteCount.Disagree Disagree</small>
+                <div class="d-flex justify-content-between align-items-end mt-2">
+                    <div class="d-flex gap-3">
+                        <small class="text-success">@commitment.VoteCount.Agree Agree</small>
+                        <small class="text-secondary">@commitment.VoteCount.Neutral Neutral</small>
+                        <small class="text-danger">@commitment.VoteCount.Disagree Disagree</small>
+                    </div>
+
+                    <small class="text-muted">
+                        Last updated: @commitment.CreatedAt.ToString("dd MMM yyyy")
+                    </small>
                 </div>
             </div>
         </div>
