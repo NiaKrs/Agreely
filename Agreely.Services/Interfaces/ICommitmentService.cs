@@ -10,6 +10,6 @@ namespace Agreely.Services.Interfaces
         List<ViewCommitmentResponse> GetCommitmentsByGroupId(int groupId);
         ViewCommitmentResponse? GetCommitmentById(int commitmentId);
         void DeleteCommitment(int commitmentId);
-        
+        void RequestReview(int commitmentId, int requestedByUserId);
     }
 }

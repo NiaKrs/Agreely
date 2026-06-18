@@ -73,5 +73,32 @@ namespace Agreely.UnitTests
 
             Assert.Null(result);
         }
+
+        [Fact]
+        public void RegisterUser_EmptyFullName_ThrowsException()
+        {
+            var request = new RegisterRequest { FullName = "", Email = "nia@test.com", Password = "pass123" };
+
+            var ex = Assert.Throws<Exception>(() => _authService.RegisterUser(request));
+            Assert.Equal("Full name is required.", ex.Message);
+        }
+
+        [Fact]
+        public void RegisterUser_InvalidEmail_ThrowsException()
+        {
+            var request = new RegisterRequest { FullName = "Nia", Email = "notanemail", Password = "pass123" };
+
+            var ex = Assert.Throws<Exception>(() => _authService.RegisterUser(request));
+            Assert.Equal("A valid email address is required.", ex.Message);
+        }
+
+        [Fact]
+        public void RegisterUser_EmptyPassword_ThrowsException()
+        {
+            var request = new RegisterRequest { FullName = "Nia", Email = "nia@test.com", Password = "" };
+
+            var ex = Assert.Throws<Exception>(() => _authService.RegisterUser(request));
+            Assert.Equal("Password is required.", ex.Message);
+        }
     }
 }

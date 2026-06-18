@@ -1,10 +1,14 @@
 ﻿using Agreely.Services.DTO.Requests;
 using Agreely.Services.Interfaces;
 using Agreely.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Agreely.Domain.Enums;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 
 namespace Agreely.Controllers
 {
+    [Authorize]
     public class GroupController : BaseController
     {
         private readonly IGroupService _groupService;
@@ -81,6 +85,12 @@ namespace Agreely.Controllers
         [HttpGet]
         public IActionResult Details(int groupId)
         {
+            int userId = GetSessionUserId();
+            if (!_groupService.IsUserMember(groupId, userId))
+            {
+                TempData["Error"] = "You are not a member of this group.";
+                return RedirectToAction("MyGroups");
+            }
 
             try
             {
@@ -93,12 +103,17 @@ namespace Agreely.Controllers
                     MemberCount = response.MemberCount,
                     Commitments = response.Commitments
                 };
-                var userId = GetSessionUserId();
+            
                 foreach (var commitment in vm.Commitments)
                 {
                     commitment.UserVote = _voteService.GetUserVote(commitment.CommitmentVersionId, userId);
                     commitment.VoteCount = _voteService.GetVoteCounts(commitment.CommitmentVersionId);
                 }
+
+                vm.HealthyCount = vm.Commitments.Count(c => c.HealthStatus == HealthStatusValue.Healthy);
+                vm.NeedsAttentionCount = vm.Commitments.Count(c => c.HealthStatus == HealthStatusValue.NeedsAttention);
+                vm.DueForReviewCount = vm.Commitments.Count(c => c.HealthStatus == HealthStatusValue.DueForReview);
+
                 return View(vm);
             }
             catch (Exception ex)
@@ -128,6 +143,12 @@ namespace Agreely.Controllers
         [HttpGet]
         public IActionResult ActivityLog(int groupId)
         {
+            int userId = GetSessionUserId();
+            if (!_groupService.IsUserMember(groupId, userId))
+            {
+                TempData["Error"] = "You are not a member of this group.";
+                return RedirectToAction("MyGroups");
+            }
             var logs = _activityLogService.GetGroupLog(groupId);
             var group = _groupService.GetGroupDetails(groupId);
             var vm = new ActivityLogViewModel

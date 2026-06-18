@@ -1,24 +1,33 @@
 ﻿using Agreely.Services.DTO.Requests;
 using Agreely.Services.Interfaces;
 using Agreely.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Agreely.Controllers
 {
+    [Authorize]
     public class CommitmentController : BaseController
     {
         private readonly ICommitmentService _commitmentService;
         private readonly IVoteService _voteService;
+        private readonly IGroupService _groupService;
 
-        public CommitmentController(ICommitmentService commitmentService, IVoteService voteService)
+        public CommitmentController(ICommitmentService commitmentService, IVoteService voteService, IGroupService groupService)
         {
             _commitmentService = commitmentService;
             _voteService = voteService;
+            _groupService = groupService;
         }
 
         [HttpGet]
         public IActionResult Create(int groupId)
         {
+            if (!_groupService.IsUserMember(groupId, GetSessionUserId()))
+            {
+                TempData["Error"] = "You are not a member of this group.";
+                return RedirectToAction("MyGroups", "Group");
+            }
             return View(new CreateCommitmentViewModel { GroupId = groupId });
         }
 
@@ -50,6 +59,11 @@ namespace Agreely.Controllers
         [HttpGet]
         public IActionResult Edit(int id, int groupId)
         {
+            if (!_groupService.IsUserMember(groupId, GetSessionUserId()))
+            {
+                TempData["Error"] = "You are not a member of this group.";
+                return RedirectToAction("MyGroups", "Group");
+            }
             try
             {
                 var response = _commitmentService.GetCommitmentById(id);
@@ -102,6 +116,11 @@ namespace Agreely.Controllers
         [HttpPost]
         public IActionResult Delete(int id, int groupId)
         {
+            if (!_groupService.IsUserMember(groupId, GetSessionUserId()))
+            {
+                TempData["Error"] = "You are not a member of this group.";
+                return RedirectToAction("MyGroups", "Group");
+            }
             try
             {
                 _commitmentService.DeleteCommitment(id);
@@ -117,6 +136,11 @@ namespace Agreely.Controllers
         [HttpPost]
         public IActionResult Vote(CastVoteRequest request, int groupId)
         {
+            if (!_groupService.IsUserMember(groupId, GetSessionUserId()))
+            {
+                TempData["Error"] = "You are not a member of this group.";
+                return RedirectToAction("MyGroups", "Group");
+            }
             try 
             { 
                 request.UserId = GetSessionUserId();
@@ -127,6 +151,23 @@ namespace Agreely.Controllers
             {
                 TempData["Error"] = ex.Message;
             }
+            return RedirectToAction("Details", "Group", new { groupId });
+        }
+
+        [HttpPost]
+        public IActionResult RequestReview(int commitmentId, int groupId)
+        {
+            if (!_groupService.IsUserMember(groupId, GetSessionUserId()))
+            {
+                TempData["Error"] = "You are not a member of this group.";
+                return RedirectToAction("MyGroups", "Group");
+            }
+            try
+            {
+                _commitmentService.RequestReview(commitmentId, GetSessionUserId());
+                TempData["Success"] = "Review requested. All members can now re-vote.";
+            }
+            catch (Exception ex) { TempData["Error"] = ex.Message; }
             return RedirectToAction("Details", "Group", new { groupId });
         }
     }

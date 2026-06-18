@@ -6,6 +6,7 @@ namespace Agreely.Repositories.Interfaces
     {
         void AddMember(GroupMembership membership);
         bool IsMember(int groupId, int userId);
+        List<int> GetMembersByGroupId(int groupId);
 
     }
 }

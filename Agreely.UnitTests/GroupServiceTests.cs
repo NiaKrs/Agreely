@@ -108,5 +108,24 @@ namespace Agreely.UnitTests
 
             Assert.Equal(2, result.Count);
         }
+
+        [Fact]
+        public void IsUserMember_UserNotMember_ReturnsFalse()
+        {
+            _membershipRepoMock.Setup(r => r.IsMember(1, 99)).Returns(false);
+
+            var result = _groupService.IsUserMember(1, 99);
+
+            Assert.False(result);
+        }
+
+        [Fact]
+        public void CreateGroup_EmptyName_ThrowsException()
+        {
+            var request = new CreateGroupRequest { Name = "", CreatedByUserId = 1 };
+
+            var ex = Assert.Throws<Exception>(() => _groupService.CreateGroup(request));
+            Assert.Equal("Group name is required.", ex.Message);
+        }
     }
 }
