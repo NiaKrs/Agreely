@@ -11,18 +11,33 @@ namespace Agreely.BackgroundServices
     {
         private readonly IServiceScopeFactory _scopeFactory;
         private readonly TimeSpan _interval = TimeSpan.FromMinutes(1);
+        private readonly ILogger<CommitmentHealthBackgroundService> _logger;
 
-        public CommitmentHealthBackgroundService(IServiceScopeFactory scopeFactory)
+        public CommitmentHealthBackgroundService(IServiceScopeFactory scopeFactory, ILogger<CommitmentHealthBackgroundService> logger)
         {
             _scopeFactory = scopeFactory;
+            _logger = logger;
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
             while (!stoppingToken.IsCancellationRequested)
             {
+                try
+                {
+                    _logger.LogInformation("Commitment health check started at {Time}", DateTime.Now);
+
+                    await RunHealthCheckAsync();
+
+                    _logger.LogInformation("Commitment health check finished at {Time}", DateTime.Now);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "An error occurred during the commitment health check.");
+                }
+
                 await Task.Delay(_interval, stoppingToken);
-                await RunHealthCheckAsync();
+                
             }
         }
 
@@ -32,7 +47,7 @@ namespace Agreely.BackgroundServices
 
             var commitmentRepo = scope.ServiceProvider.GetRequiredService<ICommitmentRepository>();
             var notificationService = scope.ServiceProvider.GetRequiredService<INotificationService>();
-            var evaluator = scope.ServiceProvider.GetRequiredService<HealthStatusEvaluator>(); // NEW
+            var evaluator = scope.ServiceProvider.GetRequiredService<HealthStatusEvaluator>(); 
 
             var allCommitments = commitmentRepo.GetAllCommitments();
 
@@ -41,7 +56,7 @@ namespace Agreely.BackgroundServices
                 var version = commitmentRepo.GetCurrentVersion(commitment.CommitmentId);
                 if (version == null) continue;
 
-                var health = evaluator.Evaluate(commitment.Status, version.CreatedAt); // instance call
+                var health = evaluator.Evaluate(commitment.Status, version.CreatedAt); 
 
                 if (health == HealthStatusValue.NeedsAttention || health == HealthStatusValue.DueForReview)
                 {
