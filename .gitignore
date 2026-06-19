@@ -19,3 +19,4 @@ secrets.json
 
 # App settings (if needed later)
 appsettings.Development.json
+appsettings.Production.json
